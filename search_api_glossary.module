@@ -14,6 +14,8 @@ function search_api_glossary_entity_property_info() {
 
   $properties['title_az_glossary'] = array(
     'label' => t("Title A-Z Glossary"),
+    'type' => 'text',
+    'description' => t("The A-Z Glossary from title of the node."),
 
   );
 
