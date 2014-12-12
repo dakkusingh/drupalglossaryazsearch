@@ -23,3 +23,12 @@ function search_api_glossary_entity_property_info() {
 
   return $info;
 }
+
+
+/**
+ * Getter callback for title_az_glossary property.
+ */
+function search_api_glossary_title_getter_callback($node, $name) {
+  $key = strtoupper($node->title[0]);
+  return $key;
+}
