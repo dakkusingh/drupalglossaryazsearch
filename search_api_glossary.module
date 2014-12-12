@@ -21,8 +21,18 @@ function search_api_glossary_entity_property_info() {
     'sanitized' => TRUE,
   );
 
+  $properties['name_az_glossary'] = array(
+    'label' => t("Author Name A-Z Glossary"),
+    'type' => 'text',
+    'description' => t("The A-Z Glossary from Author Name of the node."),
+    'getter callback' => 'search_api_glossary_name_getter_callback',
+    'schema field' => 'az_name',
+    'sanitized' => TRUE,
+  );
+
   return $info;
 }
+
 
 
 
