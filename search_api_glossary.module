@@ -1,0 +1,17 @@
+<?php
+
+
+/**
+ * Implements hook_entity_property_info() on top of node module.
+ *
+ * @see entity_entity_property_info()
+ */
+function search_api_glossary_entity_property_info() {
+  $info = array();
+  
+  // Add meta-data about the basic node properties.
+  $properties = &$info['node']['properties'];
+
+
+  return $info;
+}
