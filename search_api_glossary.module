@@ -12,6 +12,10 @@ function search_api_glossary_entity_property_info() {
   // Add meta-data about the basic node properties.
   $properties = &$info['node']['properties'];
 
+  $properties['title_az_glossary'] = array(
+    'label' => t("Title A-Z Glossary"),
+
+  );
 
   return $info;
 }
