@@ -50,3 +50,29 @@ function search_api_glossary_name_getter_callback($node, $name) {
   $key = strtoupper($node->name[0]);
   return $key;
 }
+
+
+/**
+ * Getter Helper for Alpha Numeric Keys
+ */
+function search_api_glossary_getter_helper($first_letter) {
+  $letters_array = range('A', 'Z');
+  $numbers_array = range(0, 9);
+  
+  $key = "";
+  
+  // it is alpha?
+  if (ctype_alpha($first_letter)) {
+    $key = $first_letter;
+  }
+  // is it a number
+  elseif (ctype_digit($first_letter)) {
+    $key = "0-9";
+  }
+  // catch all
+  else {
+    $key = "#";
+  }
+  
+  return $key;
+}
