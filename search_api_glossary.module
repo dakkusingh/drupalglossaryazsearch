@@ -38,6 +38,7 @@ function search_api_glossary_entity_property_info() {
  * Getter callback for title_az_glossary property.
  */
 function search_api_glossary_title_getter_callback($node, $name) {
+  // TODO: remove hardcoded node title field and expose this as a setting  
   $first_letter = strtoupper($node->title[0]);
   $key = search_api_glossary_getter_helper($first_letter);
   return $key;
@@ -48,6 +49,7 @@ function search_api_glossary_title_getter_callback($node, $name) {
  * Getter callback for name_az_glossary property.
  */
 function search_api_glossary_name_getter_callback($node, $name) {
+  // TODO: remove hardcoded field name and expose this as a setting    
   $first_letter = strtoupper($node->name[0]);
   $key = search_api_glossary_getter_helper($first_letter);
   return $key;
@@ -77,4 +79,39 @@ function search_api_glossary_getter_helper($first_letter) {
   }
   
   return $key;
+}
+
+
+/**
+ * Facet API "alter callback" that pads the glossary when there are no results
+ * displayed when the facet is rendered.
+ */
+function search_api_glossary_facet_strip_facet_count(&$build, FacetapiAdapter $adapter, array $facet) {
+  $glossary_array = array();
+  $glossary_array = range('A', 'Z');
+  $glossary_array[] = "#";
+  $glossary_array[] = "0-9";
+  
+  foreach ($glossary_array as $key) {
+    if(!array_key_exists($key, $build)){
+      $build[$key]['#count'] = NULL;
+    }
+  }
+  
+  /*
+  foreach ($build as $facet_name => $facet_data) {
+    //$build[$facet_name]['#count'] = NULL;
+  }*/
+  
+}
+
+
+/**
+ * Implements hook_facetapi_facet_info_alter().
+ */
+function search_api_glossary_facetapi_facet_info_alter(array &$facet_info, array $searcher_info) {
+  if ($searcher_info['adapter'] == 'search_api' && isset($searcher_info['types']['node'])) {
+    $facet_info['title_az_glossary']['alter callbacks'][] = 'search_api_glossary_facet_strip_facet_count';
+    $facet_info['name_az_glossary']['alter callbacks'][] = 'search_api_glossary_facet_strip_facet_count';
+  }
 }
