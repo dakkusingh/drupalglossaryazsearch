@@ -137,8 +137,6 @@ function search_api_glossary_title_getter_callback($node, $name) {
   return $key;
 }
 
-
-
 /**
  * Getter Helper for Alpha Numeric Keys.
  */
@@ -208,8 +206,6 @@ function search_api_glossary_theme_registry_alter(&$theme_registry) {
   }
 }
 
-
-
 /**
  * Implements hook_facetapi_sort_info().
  */
@@ -237,20 +233,19 @@ function search_api_glossary_sort_glossary(array $a, array $b) {
   if ($a_value == $b_value) {
     return 0;
   }
-  elseif(ctype_alpha($a_value) && ctype_alpha($b_value)) {
-    return ($a_value < $b_value) ? -1 : 1;    
+  elseif (ctype_alpha($a_value) && ctype_alpha($b_value)) {
+    return ($a_value < $b_value) ? -1 : 1;
   }
-  elseif(($a_value == "#" || $a_value == "0-9")&& ctype_alpha($b_value)) {
+  elseif (($a_value == "#" || $a_value == "0-9")&& ctype_alpha($b_value)) {
     return 1;
   }
-  elseif(ctype_alpha($a_value) && ($b_value == "#" || $b_value == "0-9")) {
+  elseif (ctype_alpha($a_value) && ($b_value == "#" || $b_value == "0-9")) {
     return -1;
   }
-  elseif($a_value == "#" && $b_value == "0-9") {
+  elseif ($a_value == "#" && $b_value == "0-9") {
     return 1;
   }
-  elseif($b_value == "0-9" && $a_value == "#") {
+  elseif ($b_value == "0-9" && $a_value == "#") {
     return -1;
   }
-  
 }
