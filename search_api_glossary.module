@@ -10,7 +10,6 @@
 function _search_api_glossary_get_field() {
   $fields = array(
     'title_az_glossary',
-    'name_az_glossary',
   );
 
   return $fields;
@@ -57,10 +56,10 @@ function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, &$fo
 
     $form['global'][$field_key] = array(
       '#type' => 'select',
-      '#title' => t('Title field'),
+      '#title' => t('Source field'),
       '#default_value' => $field_value,
       '#options' => $options,
-      '#description' => t('Select the source field for glossary.'),
+      '#description' => t('Select the source field for glossary sorting. This is useful if you have multiple fields, eg: Display Title Field and Sort Title Field.'),
     );
   }
 }
@@ -122,15 +121,6 @@ function search_api_glossary_entity_property_info() {
     'sanitized' => TRUE,
   );
 
-  $properties['name_az_glossary'] = array(
-    'label' => t("Author Name A-Z Glossary"),
-    'type' => 'text',
-    'description' => t("The A-Z Glossary from Author Name of the node."),
-    'getter callback' => 'search_api_glossary_name_getter_callback',
-    'schema field' => 'az_name',
-    'sanitized' => TRUE,
-  );
-
   return $info;
 }
 
@@ -145,16 +135,6 @@ function search_api_glossary_title_getter_callback($node, $name) {
   return $key;
 }
 
-
-/**
- * Getter callback for name_az_glossary property.
- */
-function search_api_glossary_name_getter_callback($node, $name) {
-  // @TODO: remove hardcoded field name and expose this as a setting.
-  $first_letter = strtoupper($node->name[0]);
-  $key = search_api_glossary_getter_helper($first_letter);
-  return $key;
-}
 
 
 /**
