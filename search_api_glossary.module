@@ -1,14 +1,115 @@
 <?php
-
+/**
+ * @file
+ * Search api glossary module file.
+ */
 
 /**
- * Implements hook_entity_property_info() on top of node module.
+ * Helper function to return list of fields.
+ */
+function _search_api_glossary_get_field() {
+  $fields = array(
+    'title_az_glossary',
+    'name_az_glossary',
+  );
+
+  return $fields;
+}
+
+/**
+ * Add search_api_glossary settings to facet configuration.
+ *
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, &$form_state, $form_id) {
+  $adapter = $form['#facetapi']['adapter'];
+  $facet = $form['#facetapi']['facet'];
+
+  $fields = _search_api_glossary_get_field();
+
+  // Do not alter other facetapi display forms.
+  if (!in_array($facet['field'], $fields)) {
+    return;
+  }
+
+  $searcher = $adapter->getSearcher();
+  list($adapter_key, $index_key) = explode('@', $searcher, 2);
+
+  // We know how to handle only search_api at the moment.
+  if ($adapter_key != 'search_api') {
+    return;
+  }
+
+  if ($index = search_api_index_load($index_key)) {
+    $facet_settings = $adapter->getFacetSettingsGlobal($facet);
+
+    $options = array();
+    $fields = $index->getFields();
+    $fulltext_fields = $index->getFulltextFields();
+    $field_names = $index->server()->getFieldNames($index);
+
+    foreach ($fulltext_fields as $fulltext_field) {
+      $options[$field_names[$fulltext_field]] = $fields[$fulltext_field]['name'];
+    }
+
+    $field_key = $facet['field'] . '_field';
+    $field_value = !empty($facet_settings->settings[$field_key]) ? $facet_settings->settings[$field_key] : $field_names[$facet['field']];
+
+    $form['global'][$field_key] = array(
+      '#type' => 'select',
+      '#title' => t('Title field'),
+      '#default_value' => $field_value,
+      '#options' => $options,
+      '#description' => t('Select the source field for glossary.'),
+    );
+  }
+}
+
+/**
+ * Alter Solr documents before they are sent to Solr for indexing.
+ *
+ * @param array $documents
+ *   An array of SearchApiSolrDocument objects ready to be indexed, generated
+ *   from $items array.
+ * @param SearchApiIndex $index
+ *   The search index for which items are being indexed.
+ * @param array $items
+ *   An array of items being indexed.
+ */
+function search_api_glossary_search_api_solr_documents_alter(array &$documents, SearchApiIndex $index, array $items) {
+  $searcher = 'search_api@' . $index->machine_name;
+
+  $fields = _search_api_glossary_get_field();
+
+  foreach ($fields as $field) {
+    if ($facet = facetapi_facet_load($field, $searcher)) {
+      $adapter = facetapi_adapter_load($searcher);
+      $facet_settings = $adapter->getFacetSettingsGlobal($facet);
+      $field_key = $facet['field'] . '_field';
+      if (!empty($facet_settings->settings[$field_key])) {
+        $source_field_key = $facet_settings->settings[$field_key];
+        $field_names = $index->server()->getFieldNames($index);
+        foreach ($documents as $document) {
+          $source_field = $document->getField($source_field_key);
+          if (is_string($source_field['value']) && (drupal_strlen($source_field['value']) > 0)) {
+            $first_letter = strtoupper($source_field['value'][0]);
+            $value = search_api_glossary_getter_helper($first_letter);
+            $document->setField($field_names[$field], $value);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_property_info().
  *
  * @see entity_entity_property_info()
  */
 function search_api_glossary_entity_property_info() {
   $info = array();
-  
+
   // Add meta-data about the basic node properties.
   $properties = &$info['node']['properties'];
 
@@ -38,7 +139,7 @@ function search_api_glossary_entity_property_info() {
  * Getter callback for title_az_glossary property.
  */
 function search_api_glossary_title_getter_callback($node, $name) {
-  // TODO: remove hardcoded node title field and expose this as a setting  
+  // @TODO: remove hardcoded node title field and expose this as a setting.
   $first_letter = strtoupper($node->title[0]);
   $key = search_api_glossary_getter_helper($first_letter);
   return $key;
@@ -49,7 +150,7 @@ function search_api_glossary_title_getter_callback($node, $name) {
  * Getter callback for name_az_glossary property.
  */
 function search_api_glossary_name_getter_callback($node, $name) {
-  // TODO: remove hardcoded field name and expose this as a setting    
+  // @TODO: remove hardcoded field name and expose this as a setting.
   $first_letter = strtoupper($node->name[0]);
   $key = search_api_glossary_getter_helper($first_letter);
   return $key;
@@ -57,27 +158,22 @@ function search_api_glossary_name_getter_callback($node, $name) {
 
 
 /**
- * Getter Helper for Alpha Numeric Keys
+ * Getter Helper for Alpha Numeric Keys.
  */
 function search_api_glossary_getter_helper($first_letter) {
-  $letters_array = range('A', 'Z');
-  $numbers_array = range(0, 9);
-  
-  $key = "";
-  
-  // it is alpha?
+  // Is it alpha?
   if (ctype_alpha($first_letter)) {
     $key = $first_letter;
   }
-  // is it a number
+  // Is it a number?
   elseif (ctype_digit($first_letter)) {
     $key = "0-9";
   }
-  // catch all
+  // Catch all.
   else {
     $key = "#";
   }
-  
+
   return $key;
 }
 
@@ -94,43 +190,40 @@ function search_api_glossary_facetapi_facet_info_alter(array &$facet_info, array
 
 
 /**
- * Facet API "alter callback" that pads the glossary when there are no results
+ * Facet API "alter callback".
+ *
+ * Pads the glossary when there are no results
  * displayed when the facet is rendered.
  */
 function search_api_glossary_facet_strip_facet_count(&$build, FacetapiAdapter $adapter, array $facet) {
-  $glossary_array = array();
   $glossary_array = range('A', 'Z');
   $glossary_array[] = "#";
   $glossary_array[] = "0-9";
-  
+
   foreach ($glossary_array as $key) {
-    if(!array_key_exists($key, $build)){
+    if (!array_key_exists($key, $build)) {
       $build[$key]['#count'] = 0;
     }
   }
-  
 }
-
-
 
 /**
  * Implements hook_theme_registry_alter().
  */
 function search_api_glossary_theme_registry_alter(&$theme_registry) {
   $path = drupal_get_path('module', 'search_api_glossary');
-  
+
   // Override the content type summary info.
   if (isset($theme_registry['facetapi_link_inactive'])) {
     $theme_registry['facetapi_link_inactive']['includes'][] = $path . '/search_api_glossary.theme.inc';
     $theme_registry['facetapi_link_inactive']['function'] = 'theme_search_api_glossary_facetapi_link_inactive';
-   
-    $theme_registry['facetapi_link_active']['includes'][] = $path . '/search_api_glossary.theme.inc';
-    $theme_registry['facetapi_link_active']['function'] = 'theme_search_api_glossary_facetapi_link_active';   
-    
-    $theme_registry['facetapi_count']['includes'][] = $path . '/search_api_glossary.theme.inc';
-    $theme_registry['facetapi_count']['function'] = 'theme_search_api_glossary_facetapi_count';        
-  }  
 
+    $theme_registry['facetapi_link_active']['includes'][] = $path . '/search_api_glossary.theme.inc';
+    $theme_registry['facetapi_link_active']['function'] = 'theme_search_api_glossary_facetapi_link_active';
+
+    $theme_registry['facetapi_count']['includes'][] = $path . '/search_api_glossary.theme.inc';
+    $theme_registry['facetapi_count']['function'] = 'theme_search_api_glossary_facetapi_count';
+  }
 }
 
 
