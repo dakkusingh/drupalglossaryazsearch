@@ -42,17 +42,18 @@ function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, &$fo
   if ($index = search_api_index_load($index_key)) {
     $facet_settings = $adapter->getFacetSettingsGlobal($facet);
 
-    $options = array();
-    $fields = $index->getFields();
-    $fulltext_fields = $index->getFulltextFields();
-    $field_names = $index->server()->getFieldNames($index);
+    $index_fields = $index->getFields();
+    $index_field_names = $index->server()->getFieldNames($index);
 
-    foreach ($fulltext_fields as $fulltext_field) {
-      $options[$field_names[$fulltext_field]] = $fields[$fulltext_field]['name'];
+    $options = array('' => $index_fields[$facet['field']]['name']);
+    foreach ($index_fields as $key => $text_field) {
+      if (in_array($text_field['type'], array('text', 'string')) && ($key != $facet['field'])) {
+        $options[$index_field_names[$key]] = $text_field['name'];
+      }
     }
 
     $field_key = $facet['field'] . '_field';
-    $field_value = !empty($facet_settings->settings[$field_key]) ? $facet_settings->settings[$field_key] : $field_names[$facet['field']];
+    $field_value = !empty($facet_settings->settings[$field_key]) ? $facet_settings->settings[$field_key] : '';
 
     $form['global'][$field_key] = array(
       '#type' => 'select',
@@ -79,6 +80,7 @@ function search_api_glossary_search_api_solr_documents_alter(array &$documents, 
   $searcher = 'search_api@' . $index->machine_name;
 
   $fields = _search_api_glossary_get_field();
+  $field_names = $index->server()->getFieldNames($index);
 
   foreach ($fields as $field) {
     if ($facet = facetapi_facet_load($field, $searcher)) {
@@ -87,14 +89,14 @@ function search_api_glossary_search_api_solr_documents_alter(array &$documents, 
       $field_key = $facet['field'] . '_field';
       if (!empty($facet_settings->settings[$field_key])) {
         $source_field_key = $facet_settings->settings[$field_key];
-        $field_names = $index->server()->getFieldNames($index);
         foreach ($documents as $document) {
           $source_field = $document->getField($source_field_key);
+          $value = '';
           if (is_string($source_field['value']) && (drupal_strlen($source_field['value']) > 0)) {
             $first_letter = strtoupper($source_field['value'][0]);
             $value = search_api_glossary_getter_helper($first_letter);
-            $document->setField($field_names[$field], $value);
           }
+          $document->setField($field_names[$field], $value);
         }
       }
     }
