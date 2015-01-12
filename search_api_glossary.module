@@ -164,7 +164,6 @@ function search_api_glossary_getter_helper($first_letter) {
 function search_api_glossary_facetapi_facet_info_alter(array &$facet_info, array $searcher_info) {
   if ($searcher_info['adapter'] == 'search_api' && isset($searcher_info['types']['node'])) {
     $facet_info['title_az_glossary']['alter callbacks'][] = 'search_api_glossary_facet_strip_facet_count';
-    $facet_info['name_az_glossary']['alter callbacks'][] = 'search_api_glossary_facet_strip_facet_count';
   }
 }
 
