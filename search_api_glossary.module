@@ -15,6 +15,8 @@ function _search_api_glossary_get_field() {
   return $fields;
 }
 
+
+
 /**
  * Add search_api_glossary settings to facet configuration.
  *
@@ -65,6 +67,8 @@ function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, &$fo
   }
 }
 
+
+
 /**
  * Alter Solr documents before they are sent to Solr for indexing.
  *
@@ -103,6 +107,8 @@ function search_api_glossary_search_api_solr_documents_alter(array &$documents, 
   }
 }
 
+
+
 /**
  * Implements hook_entity_property_info().
  *
@@ -127,6 +133,7 @@ function search_api_glossary_entity_property_info() {
 }
 
 
+
 /**
  * Getter callback for title_az_glossary property.
  */
@@ -136,6 +143,8 @@ function search_api_glossary_title_getter_callback($node, $name) {
   $key = search_api_glossary_getter_helper($first_letter);
   return $key;
 }
+
+
 
 /**
  * Getter Helper for Alpha Numeric Keys.
