@@ -202,3 +202,49 @@ function search_api_glossary_facetapi_sort_info() {
 
   return $sorts;
 }
+
+
+
+/**
+ * Sorts by A-Z then 0-9 and then # weight.
+ */
+function search_api_glossary_sort_glossary(array $a, array $b) {
+  $a_value = (isset($a['#indexed_value'])) ? $a['#indexed_value'] : '';
+  $b_value = (isset($b['#indexed_value'])) ? $b['#indexed_value'] : '';
+
+  if ($a_value == $b_value) {
+    return 0;
+  }
+  elseif (ctype_alpha($a_value) && ctype_alpha($b_value)) {
+    return ($a_value < $b_value) ? -1 : 1;
+  }
+  elseif (($a_value == "#" || $a_value == "0-9")&& ctype_alpha($b_value)) {
+    return 1;
+  }
+  elseif (ctype_alpha($a_value) && ($b_value == "#" || $b_value == "0-9")) {
+    return -1;
+  }
+  elseif ($a_value == "#" && $b_value == "0-9") {
+    return 1;
+  }
+  elseif ($b_value == "0-9" && $a_value == "#") {
+    return -1;
+  }
+}
+
+
+
+/**
+ * Implements hook_facetapi_filters().
+ */
+function search_api_glossary_facetapi_filters() {
+  return array(
+    'glossary_rewrite_items' => array(
+      'handler' => array(
+        'label' => t('Rewrite facet items to pad out missing alpha'),
+        'class' => 'SearchApiGlossaryRewriteItems',
+        'query types' => array('term', 'date'),
+      ),
+    ),
+  );
+}
