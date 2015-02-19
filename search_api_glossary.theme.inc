@@ -61,6 +61,38 @@ function theme_search_api_glossary_facetapi_link_inactive_v2($variables) {
  *
  * @ingroup themeable
  */
+function theme_search_api_glossary_facetapi_link_active($variables) {
+
+  // Theme function variables fro accessible markup.
+  // @see http://drupal.org/node/1316580
+  $accessible_vars = array(
+    'text' => $variables['text'],
+    'active' => TRUE,
+  );
+  $accessible_markup = theme('facetapi_accessible_markup', $accessible_vars);
+
+  // Sanitizes the link text if necessary.
+  $sanitize = empty($variables['options']['html']);
+  $variables['text'] = ($sanitize) ? check_plain($variables['text']) : $variables['text'];
+  
+  $variables['text'] .= $accessible_markup;
+  $variables['options']['html'] = TRUE;
+
+  return $variables['text'];
+}
+
+
+/**
+ * Returns HTML for an active facet item.
+ *
+ * @param $variables
+ *   An associative array containing the keys 'text', 'path', and 'options'. See
+ *   the l() function for information about these variables.
+ *
+ * @see l()
+ *
+ * @ingroup themeable
+ */
 function theme_search_api_glossary_facetapi_link_active_v2($variables) {
 
   // Sanitizes the link text if necessary.
