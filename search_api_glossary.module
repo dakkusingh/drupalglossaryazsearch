@@ -141,3 +141,64 @@ function search_api_glossary_title_getter_callback($node, $name) {
   $key = search_api_glossary_getter_helper($first_letter);
   return $key;
 }
+
+
+
+/**
+ * Getter Helper for Alpha Numeric Keys.
+ */
+function search_api_glossary_getter_helper($first_letter) {
+  // Is it alpha?
+  if (ctype_alpha($first_letter)) {
+    $key = $first_letter;
+  }
+  // Is it a number?
+  elseif (ctype_digit($first_letter)) {
+    $key = "0-9";
+  }
+  // Catch all.
+  else {
+    $key = "#";
+  }
+
+  return $key;
+}
+
+
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function search_api_glossary_theme_registry_alter(&$theme_registry) {
+  $path = drupal_get_path('module', 'search_api_glossary');
+
+  // Override the content type summary info.
+  if (isset($theme_registry['facetapi_link_inactive'])) {
+    //$theme_registry['facetapi_link_inactive']['includes'][] = $path . '/search_api_glossary.theme.inc';
+    //$theme_registry['facetapi_link_inactive']['function'] = 'theme_search_api_glossary_facetapi_link_inactive';
+    //$theme_registry['facetapi_link_inactive']['function'] = 'theme_search_api_glossary_facetapi_link_inactive_v2';
+  }
+  if (isset($theme_registry['facetapi_link_active'])) {
+    //$theme_registry['facetapi_link_active']['includes'][] = $path . '/search_api_glossary.theme.inc';
+    //$theme_registry['facetapi_link_active']['function'] = 'theme_search_api_glossary_facetapi_link_active';    
+    //$theme_registry['facetapi_link_active']['function'] = 'theme_search_api_glossary_facetapi_link_active_v2';    
+  }
+}
+
+
+
+/**
+ * Implements hook_facetapi_sort_info().
+ */
+function search_api_glossary_facetapi_sort_info() {
+  $sorts = array();
+
+  $sorts['glossary_az'] = array(
+    'label' => t('Glossary A-Z'),
+    'callback' => 'search_api_glossary_sort_glossary',
+    'description' => t('Sort by Glossary A-Z then 0-9 and then #.'),
+    'weight' => -40,
+  );
+
+  return $sorts;
+}
