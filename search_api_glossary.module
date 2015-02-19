@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Search api glossary module file.
+ */
+
+/**
+ * Helper function to return list of fields.
+ */
+function _search_api_glossary_get_field() {
+  $fields = array(
+    'title_az_glossary',
+  );
+
+  return $fields;
+}
