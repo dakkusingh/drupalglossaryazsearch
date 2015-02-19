@@ -248,3 +248,44 @@ function search_api_glossary_facetapi_filters() {
     ),
   );
 }
+
+
+
+class SearchApiGlossaryRewriteItems extends FacetapiFilter {
+
+  /**
+   * Filters facet items.
+   */
+  public function execute(array $build) {
+    // Pad the items out for missing alphabets.
+    $this->padListItems($build);
+    return $build;
+  }
+  
+
+  /**
+   * Pads the array to add missing items.
+   *
+   * @param array $build
+   *   The facet's render array.
+   *
+   * @return array
+   *   The "items" parameter for theme_item_list().
+   */
+  public function padListItems(&$build) {
+    $glossary_array = range('A', 'Z');
+    $glossary_array[] = "#";
+    $glossary_array[] = "0-9";
+  
+    foreach ($glossary_array as $key) {
+      if (!array_key_exists($key, $build)) {
+        $build[$key]['#markup'] = $key;          
+        $build[$key]['#indexed_value'] = $key;          
+        $build[$key]['#count'] = 0;
+      }
+    }
+    
+    return $build;
+  }
+
+}
