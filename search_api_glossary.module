@@ -105,3 +105,39 @@ function search_api_glossary_search_api_solr_documents_alter(array &$documents, 
     }
   }
 }
+
+
+
+/**
+ * Implements hook_entity_property_info().
+ *
+ * @see entity_entity_property_info()
+ */
+function search_api_glossary_entity_property_info() {
+  $info = array();
+
+  // Add meta-data about the basic node properties.
+  $properties = &$info['node']['properties'];
+
+  $properties['title_az_glossary'] = array(
+    'label' => t("Title A-Z Glossary"),
+    'type' => 'text',
+    'description' => t("The A-Z Glossary from title of the node."),
+    'getter callback' => 'search_api_glossary_title_getter_callback',
+    'schema field' => 'az_title',
+    'sanitized' => TRUE,
+  );
+
+  return $info;
+}
+
+
+/**
+ * Getter callback for title_az_glossary property.
+ */
+function search_api_glossary_title_getter_callback($node, $name) {
+  // @TODO: remove hardcoded node title field and expose this as a setting.
+  $first_letter = strtoupper($node->title[0]);
+  $key = search_api_glossary_getter_helper($first_letter);
+  return $key;
+}
