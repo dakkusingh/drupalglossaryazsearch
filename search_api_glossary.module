@@ -502,38 +502,3 @@ function search_api_glossary_theme() {
     ),
   );
 }
-
-
-/**
- * Implements hook_search_api_ajax_settings().
- */
-/*function search_api_glossary_search_api_ajax_settings() {
-  $settings = array(
-
-    // required: CSS ID for the main content (search results html).
-    //'content' => '#block-system-main',
-    'content' => '#block-system-main .content',
-
-    // required: array of regions with search-related blocks => CSS ID's.
-    'regions' => array(
-      'sidebar_first' => '#sidebar-first',
-      //'content' => '#block-system-main .content',
-      //'search_enabled_filters' => '#search-enabled-filters',
-      //'content_aside' => '#content-aside',
-    ),
-
-    // optional: if you want to show a spinner image on AJAX.
-    'spinner' => drupal_get_path('module', 'search_api_ajax') .'/spinner.gif',
-
-    // optional: if you want to scroll-back-to-top on paging search results.
-    'scrolltarget' => '#block-system-main .content',
-    'scrollspeed' => 1000,
-
-    // optional: fade main content on AJAX (fade=1 for true).
-    'fade' => 1,
-    'opacity' => 0.5,
-  );
-
-  return $settings;
-}*/
-        
