@@ -399,10 +399,6 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
       $variables['display_count'] = $display_count;
       $variables['count'] = $item['#count'];
 
-      //if ($display_count == 1) {
-      //  $variables['count'] = $item['#count'];
-      //}
-
       // If the item has no children, it is a leaf.
       if (empty($item['#item_children'])) {
         $row['class'][] = 'leaf';
