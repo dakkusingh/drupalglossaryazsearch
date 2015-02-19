@@ -289,3 +289,20 @@ class SearchApiGlossaryRewriteItems extends FacetapiFilter {
   }
 
 }
+
+
+
+/**
+ * Implements hook_facetapi_widgets().
+ */
+function search_api_glossary_facetapi_widgets() {
+  return array(
+    'search_api_glossary' => array(
+      'handler' => array(
+        'label' => t('Glossary AZ'),
+        'class' => 'SearchApiGlossaryWidget',
+        'query types' => array('term', 'date'),
+      ),
+    ),
+  );
+}
