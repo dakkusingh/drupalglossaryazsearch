@@ -16,6 +16,23 @@ function _search_api_glossary_get_field() {
 }
 
 
+/**
+ * Add search_api_glossary settings to Search API Index configuration.
+ *
+ * Implements hook_form_FORM_ID_alter().
+ */
+function search_api_glossary_form_search_api_admin_index_fields_alter(&$form, &$form_state, $form_id) {
+  // set the defaults
+
+  $form['fields']['title_az_glossary']['type']['#default_value'] = 'string';
+  $form['fields']['title_az_glossary']['type']['#disabled'] = TRUE;
+
+  $form['fields']['title_az_glossary']['indexed']['#default_value'] = TRUE;
+  $form['fields']['title_az_glossary']['indexed']['#disabled'] = TRUE;
+
+}
+
+
 
 /**
  * Add search_api_glossary settings to facet configuration.
@@ -47,7 +64,7 @@ function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, &$fo
     $index_fields = $index->getFields();
     $index_field_names = $index->server()->getFieldNames($index);
 
-    $options = array('' => $index_fields[$facet['field']]['name']);
+    //$options = array('' => $index_fields[$facet['field']]['name']);
     foreach ($index_fields as $key => $text_field) {
       if (in_array($text_field['type'], array('text', 'string')) && ($key != $facet['field'])) {
         $options[$index_field_names[$key]] = $text_field['name'];
@@ -65,7 +82,9 @@ function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, &$fo
       '#description' => t('Select the source field for glossary sorting. This is useful if you have multiple fields, eg: Display Title Field and Sort Title Field.'),
     );
   }
+
 }
+
 
 
 
