@@ -91,18 +91,37 @@ function search_api_glossary_search_api_solr_documents_alter(array &$documents, 
       $adapter = facetapi_adapter_load($searcher);
       $facet_settings = $adapter->getFacetSettingsGlobal($facet);
       $field_key = $facet['field'] . '_field';
+
       if (!empty($facet_settings->settings[$field_key])) {
         $source_field_key = $facet_settings->settings[$field_key];
+
         foreach ($documents as $document) {
           $source_field = $document->getField($source_field_key);
-          $value = '';
-          if (is_string($source_field['value']) && (drupal_strlen($source_field['value']) > 0)) {
-            $first_letter = strtoupper($source_field['value'][0]);
-            $value = search_api_glossary_getter_helper($first_letter);
+
+          // is source field a "string" or "text"?
+          if (0 === strpos($source_field['name'], 'tm_')) {
+            // $source_field['value'] is an array
+            $source_field_value = $source_field['value'][0];
           }
-          $document->setField($field_names[$field], $value);
+          elseif (0 === strpos($source_field['name'], 'ss_')) {
+            // $source_field['value'] is an string
+            $source_field_value = $source_field['value'];
+          }
+
+          if (is_string($source_field_value) && (drupal_strlen($source_field_value) > 0)) {
+            // get the first letter of $source_field_value, eg CAT = C
+            $first_letter = strtoupper($source_field_value[0]);
+
+            // Group the $first_letter into its container bin.
+            $value = search_api_glossary_getter_helper($first_letter);
+
+            // Set the values in Solr
+            $document->setField($field_names[$field], $value);
+          }
+
         }
       }
+
     }
   }
 }
@@ -242,7 +261,7 @@ class SearchApiGlossaryRewriteItems extends FacetapiFilter {
     $this->padListItems($build);
     return $build;
   }
-  
+
 
   /**
    * Pads the array to add missing items.
@@ -257,15 +276,15 @@ class SearchApiGlossaryRewriteItems extends FacetapiFilter {
     $glossary_array = range('A', 'Z');
     $glossary_array[] = "#";
     $glossary_array[] = "0-9";
-  
+
     foreach ($glossary_array as $key) {
       if (!array_key_exists($key, $build)) {
-        $build[$key]['#markup'] = $key;          
-        $build[$key]['#indexed_value'] = $key;          
+        $build[$key]['#markup'] = $key;
+        $build[$key]['#indexed_value'] = $key;
         $build[$key]['#count'] = 0;
       }
     }
-    
+
     return $build;
   }
 
@@ -343,7 +362,7 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
 
     // Sets each item's theme hook, builds item list.
     $this->setThemeHooks($element);
-    
+
     $attributes = $this->build['#attributes'];
     $attributes['class'][] = 'tabs';
 
@@ -382,7 +401,7 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
       );
 
       $display_count = $this->settings->settings['show_count'];
-      
+
       // Pass the display count setting
       $variables['display_count'] = $display_count;
       $variables['count'] = $item['#count'];
@@ -419,7 +438,7 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
       // Themes the link, adds row to items.
       $row['data'] = theme($item['#theme'], $variables);
       $items[] = $row;
-      
+
     }
 
     return $items;
@@ -443,7 +462,7 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
         ),
       ),
     );
-    
+
     $form['widget']['widget_settings']['links'][$this->id]['show_count'] = array(
       '#type' => 'checkbox',
       '#title' => t('Show count in facet'),
