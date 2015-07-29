@@ -524,3 +524,49 @@ function search_api_glossary_theme() {
     ),
   );
 }
+
+
+
+/**
+ * Submit handler to add or delete glossary fields
+ * @param array $form
+ * @param array $form_state
+ */
+function search_api_glossary_glossary_submit($form, &$form_state) {
+  $entity = $form_state['index']->item_type;
+  $fields = $form_state['index']->options['fields'];
+
+  $field = $form['additional']['glossaryfields']['field']['#value'];
+  $delete_field = $form['additional']['glossaryfields']['deletefield']['#value'];
+  $newfield = $field . '_az';
+
+  $entity_properties = unserialize(variable_get('search_api_glossary_entity_fields', array()));
+
+  if ($field != 'none') {
+    $entity_properties[$entity]['properties'][$newfield] = array(
+      'label' => t("!fieldname A-Z Glossary", array('!fieldname' => $field)),
+      'type' => $fields[$field]['type'],
+      'description' => t("The A-Z Glossary field."),
+      'getter callback' => 'search_api_glossary_ui_glossary_getter_callback',
+      'schema field' => 'az_title',
+      'sanitized' => TRUE,
+    );
+  }
+
+  //delete the currently enabled fields
+  if ($delete_field != 'none') {
+    if (array_key_exists($delete_field, $entity_properties[$entity]['properties'])) {
+      unset($entity_properties[$entity]['properties'][$delete_field]);
+    }
+  }
+
+  variable_set('search_api_glossary_entity_fields', serialize($entity_properties));
+
+  try {
+    //@TODO  Make this lighter?
+    drupal_flush_all_caches();
+  } catch (Exception $e) {
+    drupal_set_message(t("Cache was not cleared, you must clear your cache manually "
+        . "to see the new glossary field"));
+  }
+}
