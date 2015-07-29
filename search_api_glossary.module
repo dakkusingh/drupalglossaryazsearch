@@ -528,6 +528,73 @@ function search_api_glossary_theme() {
 
 
 /**
+ * Search API fields form override
+ * 
+ * @param array $form
+ * @param array $form_state
+ * @param string $form_id
+ */
+function search_api_glossary_form_search_api_admin_index_fields_alter(&$form, &$form_state, $form_id) {
+  $allowed_fields = array('none' => t('none'));
+  $enabled_fields = array('none' => t('none'));
+  $entity = $form_state['index']->item_type;
+
+  //Get the currently enabled fields
+  $entity_properties = unserialize(variable_get('search_api_glossary_entity_fields', array()));
+
+  //Allow only integers, text or strings to be used for glossary
+  foreach ($form_state['index']->options['fields'] as $fieldname => $properties) {
+    //Set the allowed fields
+    if (substr($fieldname, -3) != '_az') {
+      if ($properties['type'] == 'integer' || $properties['type'] == 'text' || $properties['type'] == 'string') {
+        $allowed_fields[$fieldname] = $form['fields'][$fieldname]['title']["#markup"];
+      }
+    }
+  }
+  
+  //Create an array that is accaptable by the formapi 
+  //This array we will use for selection to deletion a glossary field
+  foreach ($entity_properties[$entity]['properties'] as $fieldname => $properties) {
+    if (array_key_exists($fieldname, $entity_properties[$entity]['properties'])) {
+      $enabled_fields[$fieldname] = $form['fields'][$fieldname]['title']["#markup"];
+    }
+  }
+
+  //@todo style issue, the glossary options is now inside  $additional
+  //It would look better if we can have it below additional fieldset
+  //Therefor we have to alter the theme of search api aswel
+
+  $form['additional']['glossaryfields'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Create a copy of a field to use it as A-Z Glossary'),
+    '#description' => t('Select the field(s) you want to use as glossary.') . '<br />',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#attributes' => array('class' => array('container-inline')),
+    '#weight' => 10,
+    'field' => array(
+      '#title' => t('Select a field to use as glossary'),
+      '#type' => 'select',
+      '#options' => $allowed_fields,
+      '#default_value' => key($allowed_fields),
+    ),
+    'deletefield' => array(
+      '#title' => t('Select a glossary field to delete'),
+      '#type' => 'select',
+      '#options' => $enabled_fields,
+      '#default_value' => key($enabled_fields),
+    ),
+    'change' => array(
+      '#type' => 'submit',
+      '#value' => t('Edit'),
+      '#submit' => array('search_api_glossary_glossary_submit'),
+    ),
+  );
+}
+
+
+
+/**
  * Submit handler to add or delete glossary fields
  * @param array $form
  * @param array $form_state
