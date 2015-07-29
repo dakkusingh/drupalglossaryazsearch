@@ -167,19 +167,27 @@ function search_api_glossary_entity_property_info() {
     'sanitized' => TRUE,
   );
 
+  //@TODO: $entity_properties = unserialize(variable_get('search_api_glossary_entity_fields', array()));
+
   return $info;
 }
 
 
 
 /**
- * Getter callback for title_az_glossary property.
- */
-function search_api_glossary_title_getter_callback($node, $name) {
-  // @TODO: remove hardcoded node title field and expose this as a setting.
-  $first_letter = strtoupper($node->title[0]);
+ * etter callback for title_az_glossary property.
+ * 
+ * @param object $data the entity data
+ * @param type $options
+ * @param string $name fieldname
+ * @return type
+ */ 
+function search_api_glossary_title_getter_callback($data, $options, $name) {
+  $fieldname = substr($name, 0, -3);
+  $first_letter = substr(strtoupper($data->{$fieldname}), 0, 1);
   $key = search_api_glossary_getter_helper($first_letter);
-  return $key;
+  
+  return $key;  
 }
 
 
