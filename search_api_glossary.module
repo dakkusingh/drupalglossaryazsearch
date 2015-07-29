@@ -9,7 +9,7 @@
  */
 function _search_api_glossary_get_field() {
   $fields = array(
-    'title_az_glossary',
+    'title_az_glossary', 
   );
 
   return $fields;
