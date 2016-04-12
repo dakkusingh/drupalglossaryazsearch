@@ -452,6 +452,11 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
         $item['#theme'] = 'search_api_glossary_facetapi_link_inactive_v2';
       }
 
+      // Add class is the facet is empty.
+      if ($item['#count'] == 0) {
+        $row['class'][] = 'no-content';
+      }
+
       $variables['options']['attributes']['class'][] = $class;
 
       // Themes the link, adds row to items.
