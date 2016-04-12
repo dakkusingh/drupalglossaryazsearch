@@ -298,6 +298,9 @@ class SearchApiGlossaryRewriteItems extends FacetapiFilter {
 
     foreach ($glossary_array as $key) {
       if (!array_key_exists($key, $build)) {
+        if(!isset($build[$key]['#active'])){
+          $build[$key]['#active'] = FALSE;
+        }
         $build[$key]['#markup'] = $key;
         $build[$key]['#indexed_value'] = $key;
         $build[$key]['#count'] = 0;
@@ -341,8 +344,10 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
       // Tally up the total hits for the "All" tab.
       $total_count += $e['#count'];
 
-      if ($e['#active']) {
+      if (isset($e['#active']) && $e['#active']) {
         $active = $e;
+      }else{
+        $e['#active'] = FALSE;
       }
 
       // For each link, drop any active facet that isn't defined by the
@@ -407,15 +412,18 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
 
     foreach ($build as $value => $item) {
       $row = array('class' => array());
-
+      
+      if(!isset($item['#active'])){
+        $item['#active'] = FALSE;
+      }
       // Initializes variables passed to theme hook.
       $variables = array(
         'text' => $item['#markup'],
-        'path' => $item['#path'],
+        'path' => (isset($item['#path'])? $item['#path'] : current_path()),
         'options' => array(
           'attributes' => array('class' => $this->getItemClasses()),
-          'html' => $item['#html'],
-          'query' => $item['#query'],
+          'html' => (isset($item['#html'])? $item['#html'] : FALSE),
+          'query' => (isset($item['#query'])? $item['#query'] : array()),
         ),
       );
 
