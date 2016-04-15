@@ -21,7 +21,7 @@ function _search_api_glossary_get_field() {
  *
  * Implements hook_form_FORM_ID_alter().
  */
-function search_api_glossary_form_search_api_admin_index_fields_alter(&$form, &$form_state, $form_id) {
+function search_api_glossary_form_search_api_admin_index_fields_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   // set the defaults
 
   $form['fields']['title_az_glossary']['type']['#default_value'] = 'string';
@@ -39,7 +39,7 @@ function search_api_glossary_form_search_api_admin_index_fields_alter(&$form, &$
  *
  * Implements hook_form_BASE_FORM_ID_alter().
  */
-function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, &$form_state, $form_id) {
+function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   $adapter = $form['#facetapi']['adapter'];
   $facet = $form['#facetapi']['facet'];
 
@@ -87,7 +87,7 @@ function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, &$fo
 
 
 
-
+// TODO: port to d8
 /**
  * Alter Solr documents before they are sent to Solr for indexing.
  *
@@ -147,6 +147,7 @@ function search_api_glossary_search_api_solr_documents_alter(array &$documents, 
 
 
 
+// TODO: port to d8
 /**
  * Implements hook_entity_property_info().
  *
@@ -171,7 +172,7 @@ function search_api_glossary_entity_property_info() {
 }
 
 
-
+// TODO: port to d8
 /**
  * Getter callback for title_az_glossary property.
  */
@@ -183,7 +184,7 @@ function search_api_glossary_title_getter_callback($node, $name) {
 }
 
 
-
+// TODO: port to d8
 /**
  * Getter Helper for Alpha Numeric Keys.
  */
@@ -206,6 +207,7 @@ function search_api_glossary_getter_helper($first_letter) {
 
 
 
+// TODO: port to d8
 /**
  * Implements hook_facetapi_sort_info().
  */
@@ -253,6 +255,7 @@ function search_api_glossary_sort_glossary(array $a, array $b) {
 
 
 
+// TODO: port to d8
 /**
  * Implements hook_facetapi_filters().
  */
@@ -270,6 +273,7 @@ function search_api_glossary_facetapi_filters() {
 
 
 
+// TODO: port to d8
 class SearchApiGlossaryRewriteItems extends FacetapiFilter {
 
   /**
@@ -315,6 +319,7 @@ class SearchApiGlossaryRewriteItems extends FacetapiFilter {
 
 
 
+// TODO: port to d8
 /**
  * Implements hook_facetapi_widgets().
  */
@@ -331,7 +336,7 @@ function search_api_glossary_facetapi_widgets() {
 }
 
 
-
+// TODO: port to d8
 class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
 
   /**
@@ -412,7 +417,7 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
 
     foreach ($build as $value => $item) {
       $row = array('class' => array());
-      
+
       if(!isset($item['#active'])){
         $item['#active'] = FALSE;
       }
@@ -521,7 +526,7 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
 
 
 
-
+// TODO: port to d8
 /**
  * Implements hook_theme().
  */
