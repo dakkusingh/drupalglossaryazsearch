@@ -1,0 +1,8 @@
+name: Search API AZ Glossary Facet
+description: "Creates a facet for glossary fields (A B C ...) based on node titles and user names"
+core: 7.x
+package: Search
+type: module
+dependencies:
+  - facets
+  - search_api_glossary
