@@ -4,5 +4,5 @@ core: 7.x
 package: Search
 type: module
 dependencies:
-  - facetapi
+  - facets
   - search_api
