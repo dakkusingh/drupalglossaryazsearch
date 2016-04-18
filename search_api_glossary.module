@@ -45,21 +45,19 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\
 
   $form['fields']['title_az_glossary']['indexed']['#default_value'] = TRUE;
   $form['fields']['title_az_glossary']['indexed']['#disabled'] = TRUE;*/
-  //$node = $form_state->getFormObject();
+
   $entity = $form_state->getFormObject()->getEntity();
-  //ksm($values);
   $field_instances = $entity->get('fieldInstances');
-  //ksm($values->get('fieldInstances'));
-  //ksm($form_state);
-  //ksm($form_state);
+  $allowed_fields = array('none' => t('none'));
+  $enabled_fields = array('none' => t('none'));
 
   //Allow only integers, text or strings to be used for glossary
   foreach ($field_instances as $field_instance) {
     //Set the allowed fields
-    //ksm($field_instance);
-    $field_name = get('fieldIdentifier');
-    $field_label = get('label');
-    $field_type = get('type');
+    $field_name = $field_instances->get('fieldIdentifier');
+    $field_label = $field_instances->get('label');
+    $field_type = $field_instances->get('type');
+
     if (substr($field_name, -3) != '_az') {
       if ($field_type == 'integer' || $field_type == 'text' || $field_type == 'string') {
         $allowed_fields[$field_name] = $field_label;
@@ -67,4 +65,5 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\
     }
   }
 
+  ksm($allowed_fields);
 }
