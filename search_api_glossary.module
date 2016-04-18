@@ -30,7 +30,7 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\
       if (!$locked && ($field_type == 'integer' || $field_type == 'text' || $field_type == 'string')) {
         $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
           '#type' => 'checkbox',
-          '#title' => t('Enable Glossary AZ'),
+          '#title' => t('Enable'),
         );
 
         // Array to identify which header(s) to alter.
