@@ -8,10 +8,10 @@ use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Add search_api_glossary settings to Search API Index configuration.
- *
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_FORM_ID_alter()
+ * @see \Drupal\search_api\Form\IndexFieldsForm method buildForm at /modules/search_api/src/Form/IndexFieldsForm.php
  */
-function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStateInterface $form_state) {
   $entity = $form_state->getFormObject()->getEntity();
   $field_instances = $entity->get('fieldInstances');
   $datasource_ids = array();
