@@ -61,7 +61,7 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\
 
         $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
           '#type' => 'checkbox',
-          '#title' => t('Use as A-Z Glossary'),
+          '#title' => t('Enable Glossary AZ'),
         );
 
         // array to identify which header(s) to alter
