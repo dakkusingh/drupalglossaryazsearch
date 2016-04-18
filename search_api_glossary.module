@@ -10,6 +10,7 @@
   *
   * @see entity_entity_property_info()
   */
+/*
  function search_api_glossary_entity_property_info() {
    $info = array();
 
@@ -27,7 +28,7 @@
 
    return $info;
  }
-
+*/
 
 
 /**
@@ -35,13 +36,35 @@
  *
  * Implements hook_form_FORM_ID_alter().
  */
-function search_api_glossary_form_search_api_admin_index_fields_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+//function search_api_glossary_form_search_api_admin_index_fields_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   // set the defaults
-
+/*
   $form['fields']['title_az_glossary']['type']['#default_value'] = 'string';
   $form['fields']['title_az_glossary']['type']['#disabled'] = TRUE;
 
   $form['fields']['title_az_glossary']['indexed']['#default_value'] = TRUE;
-  $form['fields']['title_az_glossary']['indexed']['#disabled'] = TRUE;
+  $form['fields']['title_az_glossary']['indexed']['#disabled'] = TRUE;*/
+  //$node = $form_state->getFormObject();
+  $entity = $form_state->getFormObject()->getEntity();
+  //ksm($values);
+  $field_instances = $entity->get('fieldInstances');
+  //ksm($values->get('fieldInstances'));
+  //ksm($form_state);
+  //ksm($form_state);
+
+  //Allow only integers, text or strings to be used for glossary
+  foreach ($field_instances as $field_instance) {
+    //Set the allowed fields
+    //ksm($field_instance);
+    $field_name = get('fieldIdentifier');
+    $field_label = get('label');
+    $field_type = get('type');
+    if (substr($field_name, -3) != '_az') {
+      if ($field_type == 'integer' || $field_type == 'text' || $field_type == 'string') {
+        $allowed_fields[$field_name] = $field_label;
+      }
+    }
+  }
 
 }
