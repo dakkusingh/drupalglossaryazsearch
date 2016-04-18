@@ -41,11 +41,6 @@ use Drupal\Core\Form\FormStateInterface;
 function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   $entity = $form_state->getFormObject()->getEntity();
   $field_instances = $entity->get('fieldInstances');
-  //ksm($entity);
-  //ksm($entity->getIndex());
-  // set the defaults
-  $allowed_fields = array('none' => t('none'));
-  $enabled_fields = array('none' => t('none'));
 
   //Allow only integers, text or strings to be used for glossary
   foreach ($field_instances as $field_instance) {
@@ -56,18 +51,28 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\
     $datasource_id = $field_instance->getDatasourceId();
     $locked = $field_instance->isTypeLocked();
 
+    $datasource_ids = array();
+
     if (substr($field_name, -3) != '_az') {
-      //TODO: figure out a better way instead of entity:node
+      //TODO: figure out a better way to identify
+
       if (!$locked && ($field_type == 'integer' || $field_type == 'text' || $field_type == 'string')) {
         $allowed_fields[$field_name] = $field_label;
 
         $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
           '#type' => 'checkbox',
-          '#title' => t('Create a copy of a field to use it as A-Z Glossary'),
+          '#title' => t('Use as A-Z Glossary'),
         );
+
+        // array to identify which header(s) to alter
+        $datasource_ids[$datasource_id] = $datasource_id;
 
       }
     }
+  }
+
+  foreach ($datasource_ids as $datasource_id_unique) {
+    $form[$datasource_id_unique]['#header'][] = t('Glossary AZ');
   }
 
 
