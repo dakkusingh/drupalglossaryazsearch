@@ -4,32 +4,6 @@
  * Search api glossary module file.
  */
 
- // TODO: port to d8
- /**
-  * Implements hook_entity_property_info().
-  *
-  * @see entity_entity_property_info()
-  */
-/*
- function search_api_glossary_entity_property_info() {
-   $info = array();
-
-   // Add meta-data about the basic node properties.
-   $properties = &$info['node']['properties'];
-
-   $properties['title_az_glossary'] = array(
-     'label' => t("Title A-Z Glossary"),
-     'type' => 'text',
-     'description' => t("The A-Z Glossary from title of the node."),
-     'getter callback' => 'search_api_glossary_title_getter_callback',
-     'schema field' => 'az_title',
-     'sanitized' => TRUE,
-   );
-
-   return $info;
- }
-*/
-
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -37,12 +11,11 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * Implements hook_form_FORM_ID_alter().
  */
-//function search_api_glossary_form_search_api_admin_index_fields_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   $entity = $form_state->getFormObject()->getEntity();
   $field_instances = $entity->get('fieldInstances');
+  $datasource_ids = array();
 
-  //Allow only integers, text or strings to be used for glossary
   foreach ($field_instances as $field_instance) {
     //Set the allowed fields
     $field_name = $field_instance->getFieldIdentifier();
@@ -51,30 +24,23 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, \Drupal\
     $datasource_id = $field_instance->getDatasourceId();
     $locked = $field_instance->isTypeLocked();
 
-    $datasource_ids = array();
-
     if (substr($field_name, -3) != '_az') {
       //TODO: figure out a better way to identify
-
+      // Allow only integers, text or strings to be used for glossary.
       if (!$locked && ($field_type == 'integer' || $field_type == 'text' || $field_type == 'string')) {
-        $allowed_fields[$field_name] = $field_label;
-
         $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
           '#type' => 'checkbox',
           '#title' => t('Enable Glossary AZ'),
         );
 
-        // array to identify which header(s) to alter
+        // Array to identify which header(s) to alter.
         $datasource_ids[$datasource_id] = $datasource_id;
-
       }
     }
   }
 
+  // Add glossary header to each fieldset.
   foreach ($datasource_ids as $datasource_id_unique) {
     $form[$datasource_id_unique]['#header'][] = t('Glossary AZ');
   }
-
-
-  //ksm($form);
 }
