@@ -93,13 +93,13 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
 //$field_settings[$field_name]
 
   //TODO: Check if field already exists
-  $field_instance = array(
+  /*$field_instance = array(
     'field_name' => 'field_new_glossary_az',
     'entity_type' => 'node',
     'bundle' => 'page',
     'label' => 'Glossary AZ for Subtitle',
     'translatable' => FALSE,
-  );
+  );*/
 
   //ksm($field_instance);
 
