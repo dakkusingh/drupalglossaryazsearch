@@ -7,6 +7,8 @@
 use Drupal\Core\Form\FormStateInterface;
 //use Drupal\Core\Form\ConfigFormBase;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
  * Add search_api_glossary settings to Search API Index configuration.
@@ -26,22 +28,33 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
     $field_label = $field_instance->getLabel();
     $field_type = $field_instance->getType();
     $datasource_id = $field_instance->getDatasourceId();
+    $datasource_id_clean = NULL;
+
+    if ($datasource_id) {
+      $datasource_id_clean = str_replace('entity:', '', $datasource_id);
+    }
+
     $locked = $field_instance->isTypeLocked();
 
-    //if (substr($field_name, -3) != '_az') {
-    //TODO: figure out a better way to identify
-    // Allow only integers, text or strings to be used for glossary.
-    if (!$locked && ($field_type == 'integer' || $field_type == 'text' || $field_type == 'string')) {
-      $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Enable'),
-        '#default_value' => $config->get($field_name),
-      );
+    //ksm($datasource_id);
 
-      // Array to identify which header(s) to alter.
-      $datasource_ids[$datasource_id] = $datasource_id;
+    // TODO make it work for non node entiies.
+    if ($field_name != 'field_new_glossary_az' && $datasource_id_clean == 'node') {
+      //TODO: figure out a better way to identify.
+      // Allow only integers, text or strings to be used for glossary.
+      if (!$locked && ($field_type == 'integer' || $field_type == 'text' || $field_type == 'string')) {
+        $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Enable'),
+          '#default_value' => $config->get($field_name),
+        );
+
+        //ksm($field_instance->getDataDefinition()->getFieldDefinition()->toArray());
+
+        // Array to identify which header(s) to alter.
+        $datasource_ids[$datasource_id] = $datasource_id;
+      }
     }
-    //}
   }
 
   // Add glossary header to each fieldset.
@@ -59,8 +72,23 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
   //$foo  = \Drupal::entityManager()->getFieldDefinitions('node', 'article');
   //ksm($foo);
 
-  //$field_info = FieldConfig::loadByName('node', 'page', 'field_new_glossary_az');
+  //$field_info = FieldConfig::loadByName('node', 'article', 'field_new_glossary_az');
+  //$field_info = FieldConfig::load('node.article.field_new_glossary_az');
   //ksm($field_info);
+
+  /*
+  $field_instance = array(
+    'field_name' => 'field_new_glossary_az',
+    'entity_type' => 'node',
+    //'bundle' => 'page',
+    //'bundles' => $bundles,
+    'label' => 'Glossary AZ for Title',
+    'translatable' => FALSE,
+  );
+
+  $field = \Drupal::entityManager()->getStorage('field_config')->create($field_instance);
+  $field->save();*/
+  //ksm(\Drupal::entityManager()->getStorage('field_config')->load('node.page.field_new_glossary_az'));
 
 }
 
@@ -72,8 +100,8 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
   $entity = $form_state->getFormObject()->getEntity();
   $field_settings = $entity->get('field_settings');
   $datasource_settings = $entity->get('datasource_settings');
-  ksm($field_settings);
-  ksm($datasource_settings);
+  //ksm($field_settings);
+  //ksm($datasource_settings);
 
   $config = \Drupal::configFactory()->getEditable('search_api_glossary.settings');
 
@@ -84,11 +112,19 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
       // Set the variables.
       $config->set($field_name, $field_values['glossary_az'])->save();
 
+      // If this is a node entity, there maybe a bundle
+      $bundles = array();
+      if ($datasource_settings[$field_settings[$field_type]['datasource_id']]['settings']['bundles']) {
+        $bundles = $datasource_settings[$field_settings[$field_type]['datasource_id']]['settings']['bundles'];
+      }
+
+      $entity_type_clean = str_replace('entity:', '', $field_settings[$field_type]['datasource_id']);
       //TODO: Check if field already exists
       $field_instance = array(
         'field_name' => 'field_new_glossary_az',
-        'entity_type' => str_replace('entity:', '', $field_settings[$field_type]['datasource_id']),
-        //'bundle' => 'page',
+        'entity_type' => $entity_type_clean,
+        'bundle' => 'page',
+        'bundles' => $bundles,
         'label' => 'Glossary AZ for ' . $field_settings[$field_type]['label'],
         'translatable' => FALSE,
       );
@@ -112,6 +148,7 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
 
 
 function search_api_glossary_field_instance_create($field_instance) {
+  // TODO make it work with non bundle entities too
   $field_info = FieldConfig::loadByName($field_instance['entity_type'], $field_instance['bundle'], $field_instance['field_name']);
 
   if (!$field_info) {
@@ -119,3 +156,39 @@ function search_api_glossary_field_instance_create($field_instance) {
     $field->save();
   }
 }
+
+/*
+function search_api_glossary_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
+  // Alter the mymodule_text field to use a custom class.
+  if ($entity_type->id() == 'node' && !empty($fields['field_new_glossary_az'])) {
+    $fields['field_new_glossary_az']->setComputed(TRUE);
+    $fields['field_new_glossary_az']->setClass('\Drupal\search_api_glossary\GlossaryazProcessed');
+  }
+}*/
+
+/*
+function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
+  if ($entity_type->id() == 'node') {
+    $fields = array();
+    $fields['search_api_glossary_az_new_latest'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('The Glossary AZ text'))
+      ->setDescription(t('A text property added by Glossary.'))
+      ->setComputed(TRUE)
+      ->setClass('\Drupal\search_api_glossary\GlossaryazProcessed');
+
+    return $fields;
+  }
+}*/
+
+//function search_api_glossary_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  /*if ($entity instanceof ContentEntityInterface && $entity->isTranslatable()) {
+    $route_match = \Drupal::routeMatch();
+    \Drupal::service('content_translation.synchronizer')->synchronizeFields($entity, $entity->language()->getId(), $route_match->getParameter('source_langcode'));
+  }*/
+  //ksm($entity->getTitle());
+  //$fields = $entity->getFields();
+  //ksm($entity->get('body')->value);
+
+  // TODO : check if field exists
+  //$entity->set('field_new_glossary_az', $entity->get('title')->value);
+//}
