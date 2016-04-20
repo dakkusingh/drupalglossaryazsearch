@@ -10,6 +10,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataDefinition;
 
+use Drupal\Core\Entity\Controller\EntityListController;
+use Drupal\Core\Routing\RouteMatchInterface;
+
 /**
  * Plugin implementation of the 'glossaryaz' field type.
  *
@@ -24,13 +27,13 @@ class GlossaryAZItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  /*public static function defaultStorageSettings() {
+  public static function defaultStorageSettings() {
     return array(
-      'max_length' => 255,
-      'is_ascii' => FALSE,
+      'glossary_az_source' => NULL,
+      //'is_ascii' => FALSE,
       'case_sensitive' => FALSE,
     ) + parent::defaultStorageSettings();
-  }*/
+  }
 
   /**
    * {@inheritdoc}
@@ -42,6 +45,9 @@ class GlossaryAZItem extends FieldItemBase {
       ->setRequired(FALSE);
 
     // TODO: Lock this field to prevent editing
+
+
+
     return $properties;
   }
 
@@ -98,57 +104,40 @@ class GlossaryAZItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  /*public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
-    $elements = [];
-
-    $elements['max_length'] = array(
-      '#type' => 'number',
-      '#title' => t('Maximum length'),
-      '#default_value' => $this->getSetting('max_length'),
-      '#required' => TRUE,
-      '#description' => t('The maximum length of the field in characters.'),
-      '#min' => 1,
-      '#disabled' => $has_data,
-    );
-
-    return $elements;
-  }*/
-
-  /**
-   * {@inheritdoc}
-   */
   public function isEmpty() {
     $value = $this->get('value')->getValue();
     return $value === NULL || $value === '';
   }
 
 
-  //TODO
-  /**
-   * {@inheritdoc}
-   */
-  /*public function preSave() {
-    //parent::preSave();
-
-    ksm($this);
-  }*/
-
   /**
    * {@inheritdoc}
    */
   public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
-    /*$element['target_type'] = array(
+    // TODO Maybe there is a better way to do all of this
+
+    $bundle = $this->getFieldDefinition()->get('bundle');
+    $entity_type = $this->getFieldDefinition()->get('entity_type');
+
+    $fields = \Drupal::entityManager()->getFieldDefinitions($entity_type, $bundle);
+    // TODO make sure this field is not available for selection.
+    // disallow self selection
+
+    foreach ($fields as $field) {
+      $options[$field->getName()] = $field->getName();
+    }
+
+    $element['glossary_az_source'] = array(
       '#type' => 'select',
       '#title' => t('Type of item to reference'),
-      '#options' => \Drupal::entityManager()->getEntityTypeLabels(TRUE),
-      '#default_value' => $this->getSetting('target_type'),
+      '#options' => $options,
+      '#default_value' => $this->getSetting('glossary_az_source'),
       '#required' => TRUE,
       '#disabled' => $has_data,
       '#size' => 1,
-    );*/
+    );
 
-    //return $element;
-    return array();
+    return $element;
   }
 
   /**
@@ -156,12 +145,14 @@ class GlossaryAZItem extends FieldItemBase {
    */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     //$field = $form_state->getFormObject()->getEntity();
-    ksm($form);
+    // TODO remove and cleanup the form
 
-    $form['required']['#type'] = 'hidden';
-    $form['description']['#type'] = 'hidden';
+    //$form['required']['#type'] = 'hidden';
+    //$form['description']['#type'] = 'hidden';
 
-    return $form;
+    //ksm($form);
+    //return $form;
+    return array();
 
   }
 }

@@ -201,11 +201,12 @@ function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTy
  * @see \Drupal\field_ui\Form\FieldConfigEditForm method buildForm at /core/lib/Drupal/Core/Entity/EntityForm.php
  */
 function search_api_glossary_form_field_config_edit_form_alter(&$form, FormStateInterface $form_state) {
-  // TODO delete this
+  // TODO delete this and replace with fieldSettingsForm
   //$field_type = $form_state->getFormObject()->getEntity()->getType();
 
   //if ($field_type == 'glossary_az') {
-
+  //$form['required']['#type'] = 'hidden';
+  //$form['description']['#type'] = 'hidden';
 
     //ksm($form);
   //}

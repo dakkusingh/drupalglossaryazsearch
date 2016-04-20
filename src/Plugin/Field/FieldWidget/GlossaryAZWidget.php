@@ -72,7 +72,7 @@ class GlossaryAZWidget extends WidgetBase {
     $element = [];
 
     $element['value'] = $element + array(
-      '#type' => 'hidden',
+      '#type' => 'textfield',
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
@@ -90,7 +90,11 @@ class GlossaryAZWidget extends WidgetBase {
    */
   public function validate($element, FormStateInterface $form_state) {
     $value = $element['#value'];
-    $source_value = $form_state->getFormObject()->getEntity()->get('title')->value;
+
+    $source_field = $this->getFieldSetting('glossary_az_source');
+
+    // TODO there seems to be some weird notice about invalid value
+    $source_value = $form_state->getFormObject()->getEntity()->get($source_field)->value;
 
     // TODO Add functions to get Glossary letter
     //if (strlen($value) == 0) {
