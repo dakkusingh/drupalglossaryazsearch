@@ -192,3 +192,23 @@ function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTy
   // TODO : check if field exists
   //$entity->set('field_new_glossary_az', $entity->get('title')->value);
 //}
+
+
+//use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_FORM_ID_alter() on behalf of search_api_glossary.module.
+ * @see \Drupal\field_ui\Form\FieldConfigEditForm method buildForm at /core/lib/Drupal/Core/Entity/EntityForm.php
+ */
+function search_api_glossary_form_field_config_edit_form_alter(&$form, FormStateInterface $form_state) {
+  // TODO delete this
+  //$field_type = $form_state->getFormObject()->getEntity()->getType();
+
+  //if ($field_type == 'glossary_az') {
+
+
+    //ksm($form);
+  //}
+
+
+}

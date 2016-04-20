@@ -132,4 +132,36 @@ class GlossaryAZItem extends FieldItemBase {
 
     ksm($this);
   }*/
+
+  /**
+   * {@inheritdoc}
+   */
+  public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
+    /*$element['target_type'] = array(
+      '#type' => 'select',
+      '#title' => t('Type of item to reference'),
+      '#options' => \Drupal::entityManager()->getEntityTypeLabels(TRUE),
+      '#default_value' => $this->getSetting('target_type'),
+      '#required' => TRUE,
+      '#disabled' => $has_data,
+      '#size' => 1,
+    );*/
+
+    //return $element;
+    return array();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
+    //$field = $form_state->getFormObject()->getEntity();
+    ksm($form);
+
+    $form['required']['#type'] = 'hidden';
+    $form['description']['#type'] = 'hidden';
+
+    return $form;
+
+  }
 }
