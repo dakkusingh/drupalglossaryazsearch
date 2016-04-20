@@ -129,7 +129,7 @@ class GlossaryAZItem extends FieldItemBase {
 
     $element['glossary_az_source'] = array(
       '#type' => 'select',
-      '#title' => t('Type of item to reference'),
+      '#title' => t('Source field for Glossary AZ Index'),
       '#options' => $options,
       '#default_value' => $this->getSetting('glossary_az_source'),
       '#required' => TRUE,
