@@ -1,21 +1,6 @@
 <?php
 
-// TODO: port to d8
-/**
- * Implements hook_facetapi_sort_info().
- */
-function search_api_glossary_facetapi_sort_info() {
-  $sorts = array();
 
-  $sorts['glossary_az'] = array(
-    'label' => t('Glossary A-Z'),
-    'callback' => 'search_api_glossary_sort_glossary',
-    'description' => t('Sort by Glossary A-Z then 0-9 and then #.'),
-    'weight' => -40,
-  );
-
-  return $sorts;
-}
 
 
 
@@ -273,47 +258,9 @@ class SearchApiGlossaryWidget extends FacetapiWidgetLinks {
     return $items;
   }
 
-  /**
-   * Overrides FacetapiWidgetLinks::settingsForm().
-   */
-  function settingsForm(&$form, &$form_state) {
-    parent::settingsForm($form, $form_state);
 
-    // @see http://drupal.org/node/1370342
-    $form['widget']['widget_settings']['links'][$this->id]['show_all'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Show "all" facet'),
-      '#default_value' => !empty($this->settings->settings['show_all']),
-      '#description' => t('Whether to display the "all" facet or not'),
-      '#states' => array(
-        'visible' => array(
-          'select[name="widget"]' => array('value' => $this->id),
-        ),
-      ),
-    );
 
-    $form['widget']['widget_settings']['links'][$this->id]['show_count'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Show count in facet'),
-      '#default_value' => !empty($this->settings->settings['show_count']),
-      '#description' => t('Whether to display count in facet or not'),
-      '#states' => array(
-        'visible' => array(
-          'select[name="widget"]' => array('value' => $this->id),
-        ),
-      ),
-    );
-  }
 
-  /**
-   * Overrides FacetapiWidgetLinks::getDefaultSettings().
-   */
-  function getDefaultSettings() {
-    $settings = parent::getDefaultSettings();
-    $settings['show_all'] = 1;
-    $settings['show_count'] = 1;
-    return $settings;
-  }
 }
 
 
@@ -333,55 +280,4 @@ function search_api_glossary_theme() {
       'file' => 'search_api_glossary.theme.inc',
     ),
   );
-}
-
-/**
- * Add search_api_glossary settings to facet configuration.
- *
- * Implements hook_form_BASE_FORM_ID_alter().
- */
-function search_api_glossary_form_facetapi_facet_display_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  $adapter = $form['#facetapi']['adapter'];
-  $facet = $form['#facetapi']['facet'];
-
-  $fields = _search_api_glossary_get_field();
-
-  // Do not alter other facetapi display forms.
-  if (!in_array($facet['field'], $fields)) {
-    return;
-  }
-
-  $searcher = $adapter->getSearcher();
-  list($adapter_key, $index_key) = explode('@', $searcher, 2);
-
-  // We know how to handle only search_api at the moment.
-  if ($adapter_key != 'search_api') {
-    return;
-  }
-
-  if ($index = search_api_index_load($index_key)) {
-    $facet_settings = $adapter->getFacetSettingsGlobal($facet);
-
-    $index_fields = $index->getFields();
-    $index_field_names = $index->server()->getFieldNames($index);
-
-    //$options = array('' => $index_fields[$facet['field']]['name']);
-    foreach ($index_fields as $key => $text_field) {
-      if (in_array($text_field['type'], array('text', 'string')) && ($key != $facet['field'])) {
-        $options[$index_field_names[$key]] = $text_field['name'];
-      }
-    }
-
-    $field_key = $facet['field'] . '_field';
-    $field_value = !empty($facet_settings->settings[$field_key]) ? $facet_settings->settings[$field_key] : '';
-
-    $form['global'][$field_key] = array(
-      '#type' => 'select',
-      '#title' => t('Source field'),
-      '#default_value' => $field_value,
-      '#options' => $options,
-      '#description' => t('Select the source field for glossary sorting. This is useful if you have multiple fields, eg: Display Title Field and Sort Title Field.'),
-    );
-  }
-
 }

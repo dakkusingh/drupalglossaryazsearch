@@ -95,7 +95,7 @@ class GlossaryAZItem extends FieldItemBase {
    */
   public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
     $random = new Random();
-    $values['value'] = $random->word(mt_rand(1, 1));
+    $values['value'] = strtoupper($random->word(mt_rand(1, 1)));
     return $values;
   }
 
