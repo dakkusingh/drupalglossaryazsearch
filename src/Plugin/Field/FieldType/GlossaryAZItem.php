@@ -46,8 +46,6 @@ class GlossaryAZItem extends FieldItemBase {
 
     // TODO: Lock this field to prevent editing
 
-
-
     return $properties;
   }
 
@@ -114,12 +112,7 @@ class GlossaryAZItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public function preSave() {
-    //ksm($this->get('body')->value);
 
-    // TODO there seems to be some weird notice about invalid value
-    //$source_value = $form_state->getFormObject()->getEntity()->get($source_field)->value;
-    //$source_value = $form_state->getValues()[$source_field]->value;
-    //$glossary_az = $this->glossaryGetter($source_value);
   }
 
 
@@ -133,6 +126,7 @@ class GlossaryAZItem extends FieldItemBase {
     $entity_type = $this->getFieldDefinition()->get('entity_type');
 
     $fields = \Drupal::entityManager()->getFieldDefinitions($entity_type, $bundle);
+
     // TODO make sure this field is not available for selection.
     // disallow self selection
 
@@ -157,7 +151,6 @@ class GlossaryAZItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
-    //$field = $form_state->getFormObject()->getEntity();
     // TODO remove and cleanup the form
 
     //$form['required']['#type'] = 'hidden';
@@ -166,6 +159,5 @@ class GlossaryAZItem extends FieldItemBase {
     //ksm($form);
     //return $form;
     return array();
-
   }
 }

@@ -74,7 +74,7 @@ class GlossaryAZWidget extends WidgetBase {
 
     $element['value'] = $element + array(
       '#type' => 'textfield',
-      //'#disabled' => TRUE,
+      '#disabled' => TRUE,
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
