@@ -113,6 +113,19 @@ class GlossaryAZItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
+  public function preSave() {
+    //ksm($this->get('body')->value);
+
+    // TODO there seems to be some weird notice about invalid value
+    //$source_value = $form_state->getFormObject()->getEntity()->get($source_field)->value;
+    //$source_value = $form_state->getValues()[$source_field]->value;
+    //$glossary_az = $this->glossaryGetter($source_value);
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
   public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
     // TODO Maybe there is a better way to do all of this
 

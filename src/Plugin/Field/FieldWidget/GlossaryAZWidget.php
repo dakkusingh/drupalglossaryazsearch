@@ -5,6 +5,7 @@ namespace Drupal\search_api_glossary\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use \Drupal\Component\Utility\NestedArray;
 
 /**
  * Plugin implementation of the 'glossary_az' widget.
@@ -73,7 +74,7 @@ class GlossaryAZWidget extends WidgetBase {
 
     $element['value'] = $element + array(
       '#type' => 'textfield',
-      '#disabled' => TRUE,
+      //'#disabled' => TRUE,
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
@@ -95,14 +96,50 @@ class GlossaryAZWidget extends WidgetBase {
     $source_field = $this->getFieldSetting('glossary_az_source');
 
     // TODO there seems to be some weird notice about invalid value
-    $source_value = $form_state->getFormObject()->getEntity()->get($source_field)->value;
+    //$source_value = $form_state->getValue($source_field);
 
-    // TODO Add functions to get Glossary letter
-    //if (strlen($value) == 0) {
-      $form_state->setValueForElement($element, $source_value);
-      return;
-    //}
+    // TODO Surely there has to be a better way
+    $key_exists = NULL;
+    $source_value = NestedArray::getValue($form_state->getValues(), array($source_field, '0'), $key_exists)['value'];
 
+    $glossary_az = $this->glossaryGetter($source_value);
+
+    // TODO put some checks in place to avoid duplicated effort
+    if ($glossary_az != $value) {
+      $form_state->setValueForElement($element, $glossary_az);
+    }
+  }
+
+
+  /**
+   * Getter callback for title_az_glossary property.
+   */
+  private function glossaryGetter($source_value) {
+    $first_letter = strtoupper($source_value)[0];
+    return $this->glossaryGetterHelper($first_letter);
+  }
+
+  /**
+   * Getter Helper for Alpha Numeric Keys.
+   */
+  private function glossaryGetterHelper($first_letter) {
+    // Is it alpha?
+    if (ctype_alpha($first_letter)) {
+      $key = $first_letter;
+    }
+    // Is it a number?
+    elseif (ctype_digit($first_letter)) {
+      // TODO Make this configurable.
+      // So users can have 0,1,2 or
+      // 0-9 as a bucket
+      $key = "0-9";
+    }
+    // Catch all.
+    else {
+      $key = "#";
+    }
+
+    return $key;
   }
 
 }
