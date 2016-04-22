@@ -36,22 +36,7 @@ class GlossaryAZWidget implements WidgetInterface {
     $show_count = empty($configuration['show_count']) ? FALSE : (bool) $configuration['show_count'];
 
     foreach ($results as $result) {
-
-      // Get the link.
-      $text = $result->getDisplayValue();
-      if ($show_count) {
-        $text .= ' (' . $result->getCount() . ')';
-      }
-      if ($result->isActive()) {
-        $text = '(-) ' . $text;
-      }
-
-      if (is_null($result->getUrl())) {
-        $items[] = ['#markup' => $text];
-      }
-      else {
-        $items[] = $this->buildListItems($result, $show_count);
-      }
+      $items[] = $this->buildListItems($result, $show_count);
     }
 
     $build = [
@@ -82,35 +67,29 @@ class GlossaryAZWidget implements WidgetInterface {
   protected function buildListItems(ResultInterface $result, $show_count) {
 
     $classes = ['facet-item'];
+    // Not sure if glossary will have children.
+    // Removed chilren processing for now.
 
-    if ($children = $result->getChildren()) {
-      $items = $this->prepareLink($result, $show_count);
+    $items = $this->prepareLink($result, $show_count);
 
-      $children_markup = [];
-      foreach ($children as $child) {
-        $children_markup[] = $this->buildChildren($child, $show_count);
-      }
+    if ($result->isActive()) {
+      $items['#attributes'] = ['class' => 'is-active'];
+      $classes[] = 'is-active';
+    }
 
-      $classes[] = 'expanded';
-      $items['children'] = [$children_markup];
-
-      if ($result->isActive()) {
-        $items['#attributes'] = ['class' => 'active-trail'];
-      }
+    // Add result, no result classes
+    if ($result->getCount() == 0) {
+      $classes[] = 'no-results';
     }
     else {
-      $items = $this->prepareLink($result, $show_count);
-
-      if ($result->isActive()) {
-        $items['#attributes'] = ['class' => 'is-active'];
-      }
+      $classes[] = 'yes-results';
     }
 
     $items['#wrapper_attributes'] = ['class' => $classes];
 
-
     return $items;
   }
+
 
   /**
    * Returns the text or link for an item.
@@ -129,11 +108,8 @@ class GlossaryAZWidget implements WidgetInterface {
     if ($show_count) {
       $text .= ' (' . $result->getCount() . ')';
     }
-    if ($result->isActive()) {
-      $text = '(-) ' . $text;
-    }
 
-    if (is_null($result->getUrl())) {
+    if (is_null($result->getUrl()) || $result->getCount() == 0) {
       $link = ['#markup' => $text];
     }
     else {
@@ -143,40 +119,6 @@ class GlossaryAZWidget implements WidgetInterface {
 
     return $link;
   }
-
-  /**
-   * Builds a renderable array of a result.
-   *
-   * @param \Drupal\facets\Result\ResultInterface $child
-   *   A result item.
-   * @param bool $show_count
-   *   A boolean that's true when the numbers should be shown.
-   *
-   * @return array
-   *   A renderable array of the result.
-   */
-  protected function buildChildren(ResultInterface $child, $show_count) {
-    $text = $child->getDisplayValue();
-    if ($show_count) {
-      $text .= ' (' . $child->getCount() . ')';
-    }
-    if ($child->isActive()) {
-      $text = '(-) ' . $text;
-    }
-
-    if (!is_null($child->getUrl())) {
-      $link = new Link($text, $child->getUrl());
-      $item = $link->toRenderable();
-    }
-    else {
-      $item = ['#markup' => $text];
-    }
-
-    $item['#wrapper_attributes'] = ['class' => ['leaf']];
-
-    return $item;
-  }
-
 
 
   /**
