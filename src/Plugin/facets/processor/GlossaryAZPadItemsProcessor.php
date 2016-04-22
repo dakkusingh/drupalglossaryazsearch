@@ -25,7 +25,6 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet, array $results) {
-ksm($facet->getWidgetConfigs());
     $glossary_array = range('A', 'Z');
     $glossary_array[] = "#";
     $glossary_array[] = "0-9";
