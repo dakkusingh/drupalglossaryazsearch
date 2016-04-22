@@ -28,12 +28,14 @@ class GlossaryAZWidget implements WidgetInterface {
   public function build(FacetInterface $facet) {
     /** @var \Drupal\facets\Result\Result[] $results */
     $results = $facet->getResults();
+
     $items = [];
 
     $configuration = $facet->getWidgetConfigs();
     $show_count = empty($configuration['show_count']) ? FALSE : (bool) $configuration['show_count'];
 
     foreach ($results as $result) {
+      
       // Get the link.
       $text = $result->getDisplayValue();
       if ($show_count) {
@@ -61,6 +63,7 @@ class GlossaryAZWidget implements WidgetInterface {
         ],
       ],
     ];
+
     return $build;
   }
 
@@ -122,7 +125,7 @@ class GlossaryAZWidget implements WidgetInterface {
   protected function prepareLink(ResultInterface $result, $show_count) {
     $text = $result->getDisplayValue();
 
-    if ($show_count && $result->getCount()) {
+    if ($show_count) {
       $text .= ' (' . $result->getCount() . ')';
     }
     if ($result->isActive()) {
@@ -153,7 +156,7 @@ class GlossaryAZWidget implements WidgetInterface {
    */
   protected function buildChildren(ResultInterface $child, $show_count) {
     $text = $child->getDisplayValue();
-    if ($show_count && $child->getCount()) {
+    if ($show_count) {
       $text .= ' (' . $child->getCount() . ')';
     }
     if ($child->isActive()) {
@@ -172,6 +175,8 @@ class GlossaryAZWidget implements WidgetInterface {
 
     return $item;
   }
+
+
 
   /**
    * {@inheritdoc}

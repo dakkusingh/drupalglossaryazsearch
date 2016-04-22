@@ -14,7 +14,7 @@ use Drupal\facets\Result\Result;
  *   label = @Translation("Sort by Glossary AZ"),
  *   description = @Translation("Sort by Glossary AZ then 0-9 and then #."),
  *   stages = {
- *     "build" = 50
+ *     "build" = 100
  *   }
  * )
  */

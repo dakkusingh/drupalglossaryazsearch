@@ -15,7 +15,7 @@ use Drupal\facets\Result\Result;
  *   label = @Translation("Add missing items to Glossary AZ"),
  *   description = @Translation("Rewrite facet results to pad out missing Glossary AZ"),
  *   stages = {
- *     "build" = 10
+ *     "build" = 25
  *   }
  * )
  */
