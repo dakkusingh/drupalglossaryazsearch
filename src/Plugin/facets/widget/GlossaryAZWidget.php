@@ -34,6 +34,7 @@ class GlossaryAZWidget implements WidgetInterface {
 
     $configuration = $facet->getWidgetConfigs();
     $show_count = empty($configuration['show_count']) ? FALSE : (bool) $configuration['show_count'];
+    $enable_default_theme = empty($configuration['enable_default_theme']) ? FALSE : (bool) $configuration['enable_default_theme'];
 
     foreach ($results as $result) {
       $items[] = $this->buildListItems($result, $show_count);
@@ -49,6 +50,14 @@ class GlossaryAZWidget implements WidgetInterface {
         ],
       ],
     ];
+
+    if ($enable_default_theme) {
+      $build['#attached'] = array(
+        'library' =>  array(
+          'search_api_glossary/drupal.search_api_glossary.facet_css'
+        ),
+      );
+    }
 
     return $build;
   }
@@ -66,7 +75,7 @@ class GlossaryAZWidget implements WidgetInterface {
    */
   protected function buildListItems(ResultInterface $result, $show_count) {
 
-    $classes = ['facet-item'];
+    $classes = ['facet-item', 'glossaryaz'];
     // Not sure if glossary will have children.
     // Removed chilren processing for now.
 
@@ -75,6 +84,9 @@ class GlossaryAZWidget implements WidgetInterface {
     if ($result->isActive()) {
       $items['#attributes'] = ['class' => 'is-active'];
       $classes[] = 'is-active';
+    }
+    else {
+      $items['#attributes'] = ['class' => 'is-inactive'];
     }
 
     // Add result, no result classes
@@ -135,6 +147,18 @@ class GlossaryAZWidget implements WidgetInterface {
       $widget_configs = $config->get('widget_configs');
       if (isset($widget_configs['show_count'])) {
         $form['show_count']['#default_value'] = $widget_configs['show_count'];
+      }
+    }
+
+    $form['enable_default_theme'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use default Glossary AZ Theme'),
+    ];
+
+    if (!is_null($config)) {
+      $widget_configs = $config->get('widget_configs');
+      if (isset($widget_configs['enable_default_theme'])) {
+        $form['enable_default_theme']['#default_value'] = $widget_configs['enable_default_theme'];
       }
     }
 
