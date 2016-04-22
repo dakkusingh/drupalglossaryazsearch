@@ -15,7 +15,7 @@ use Drupal\facets\Result\Result;
  *   label = @Translation("Add missing items to Glossary AZ"),
  *   description = @Translation("Rewrite facet results to pad out missing Glossary AZ"),
  *   stages = {
- *     "build" = 25
+ *     "build" = 10
  *   }
  * )
  */
@@ -25,7 +25,7 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet, array $results) {
-
+ksm($facet->getWidgetConfigs());
     $glossary_array = range('A', 'Z');
     $glossary_array[] = "#";
     $glossary_array[] = "0-9";

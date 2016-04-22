@@ -7,6 +7,7 @@ use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\facets\FacetInterface;
 use Drupal\facets\Result\ResultInterface;
+use Drupal\facets\Result\Result;
 use Drupal\facets\Widget\WidgetInterface;
 
 /**
@@ -35,7 +36,7 @@ class GlossaryAZWidget implements WidgetInterface {
     $show_count = empty($configuration['show_count']) ? FALSE : (bool) $configuration['show_count'];
 
     foreach ($results as $result) {
-      
+
       // Get the link.
       $text = $result->getDisplayValue();
       if ($show_count) {
@@ -192,18 +193,6 @@ class GlossaryAZWidget implements WidgetInterface {
       $widget_configs = $config->get('widget_configs');
       if (isset($widget_configs['show_count'])) {
         $form['show_count']['#default_value'] = $widget_configs['show_count'];
-      }
-    }
-
-    $form['show_all'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Show all items in the Glossary index'),
-    ];
-
-    if (!is_null($config)) {
-      $widget_configs = $config->get('widget_configs');
-      if (isset($widget_configs['show_all'])) {
-        $form['show_all']['#default_value'] = $widget_configs['show_all'];
       }
     }
 
