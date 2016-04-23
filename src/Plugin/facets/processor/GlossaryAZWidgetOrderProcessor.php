@@ -6,6 +6,9 @@ use Drupal\facets\Processor\WidgetOrderPluginBase;
 use Drupal\facets\Processor\WidgetOrderProcessorInterface;
 use Drupal\facets\Result\Result;
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\facets\FacetInterface;
+
 /**
  * A processor that orders the results by display value.
  *
@@ -28,6 +31,36 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     usort($results, 'self::sortGlossaryAZDefault');
     return $results;
   }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state, FacetInterface $facet) {
+    $processors = $facet->getProcessors();
+    $config = isset($processors[$this->getPluginId()]) ? $processors[$this->getPluginId()] : NULL;
+
+    $build['sort'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Sort order'),
+      '#options' => [
+        'ASC' => $this->t('Ascending -'),
+        'DESC' => $this->t('Descending -'),
+      ],
+      '#default_value' => !is_null($config) ? $config->getConfiguration()['sort'] : $this->defaultConfiguration()['sort'],
+    ];
+
+    return $build;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return ['sort' => 'ASC'];
+  }
+
 
   /**
    * Sorts default.
