@@ -58,4 +58,11 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
     return $results;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    
+  }
+
 }
