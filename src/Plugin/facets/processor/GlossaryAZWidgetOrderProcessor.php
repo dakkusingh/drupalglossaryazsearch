@@ -15,7 +15,7 @@ use Drupal\facets\FacetInterface;
  * @FacetsProcessor(
  *   id = "glossaryaz_widget_order",
  *   label = @Translation("Sort by Glossary AZ"),
- *   description = @Translation("Sort by Glossary AZ then 0-9 and then #."),
+ *   description = @Translation("Sort order for Glossary AZ items."),
  *   stages = {
  *     "build" = 100
  *   }
@@ -40,15 +40,49 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     $processors = $facet->getProcessors();
     $config = isset($processors[$this->getPluginId()]) ? $processors[$this->getPluginId()] : NULL;
 
-    $build['sort'] = [
-      '#type' => 'radios',
-      '#title' => $this->t('Sort order'),
-      '#options' => [
-        'ASC' => $this->t('Ascending -'),
-        'DESC' => $this->t('Descending -'),
-      ],
-      '#default_value' => !is_null($config) ? $config->getConfiguration()['sort'] : $this->defaultConfiguration()['sort'],
-    ];
+    $sort_options = array(
+      'glossaryaz_sort_az' => $this->t('Alpha (A-Z)'),
+      'glossaryaz_sort_09' => $this->t('Numeric (0-9)'),
+      'glossaryaz_sort_other' => $this->t('Other (#)'),
+      'glossaryaz_sort_all' => $this->t('All'),
+    );
+
+    $build['glossaryaz_sort'] = array(
+      '#tree' => TRUE,
+      '#type' => 'table',
+      '#header' => array(
+        $this->t('Sort By'),
+        $this->t('Weight'),
+      ),
+      '#tabledrag' => array(
+        array(
+          'action' => 'order',
+          'relationship' => 'sibling',
+          'group' => 'glossaryaz-sort-weight',
+        ),
+      ),
+    );
+
+    foreach ($sort_options as $sort_option => $sort_option_display) {
+      $weight = !is_null($config) ? $config->getConfiguration()['glossaryaz_sort'][$sort_option]['weight'] : $this->defaultConfiguration()['glossaryaz_sort'][$sort_option];
+      //ksm($config->getConfiguration()['glossaryaz_sort'][$sort_option]['weight']);
+
+      $build['glossaryaz_sort'][$sort_option]['#attributes']['class'][] = 'draggable';
+      $build['glossaryaz_sort'][$sort_option]['#attributes']['class'][] = 'glossaryaz-sort-weight--' . $sort_option;
+      $build['glossaryaz_sort'][$sort_option]['#weight'] = $weight;
+      $build['glossaryaz_sort'][$sort_option]['sort_by']['#plain_text'] = $sort_option_display;
+
+      $build['glossaryaz_sort'][$sort_option]['weight'] = array(
+          '#type' => 'weight',
+          '#delta' => count($sort_options),
+          '#default_value' => $weight,
+          '#attributes' => array(
+            'class' => array(
+              'glossaryaz-sort-weight',
+            ),
+          ),
+      );
+    }
 
     return $build;
   }
@@ -58,7 +92,14 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    return ['sort' => 'ASC'];
+    $sort_options_deafult['glossaryaz_sort'] = array(
+      'glossaryaz_sort_az' => 1,
+      'glossaryaz_sort_09' => 2,
+      'glossaryaz_sort_other' => 3,
+      'glossaryaz_sort_all' => 4,
+    );
+
+    return $sort_options_deafult;
   }
 
 
