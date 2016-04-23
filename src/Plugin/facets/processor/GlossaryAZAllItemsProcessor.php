@@ -6,6 +6,7 @@ use Drupal\facets\FacetInterface;
 use Drupal\facets\Processor\BuildProcessorInterface;
 use Drupal\facets\Processor\ProcessorPluginBase;
 use Drupal\facets\Result\Result;
+use Drupal\Core\Url;
 
 /**
  * Provides a processor to rewrite facet results to pad out missing alpha.
@@ -25,11 +26,33 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet, array $results) {
-    // TODO needs more love, just a POC
-    // TODO add url handling etc
     $show_all_item = new Result('All', 'All', count($results));
 
-    // TODO get actual counts
+    // Process the results count.
+    $show_all_item_count =  0;
+    foreach ($results as $result) {
+      $show_all_item_count += $result->getCount();
+    }
+    // Set the total results.
+    $show_all_item->setCount($show_all_item_count);
+
+    // Deal with the ALL Items path.
+    $path = $facet->getFacetSource()->getPath();
+    if (substr($path, 0, 1) !== '/') {
+      $path = '/' . $path;
+    }
+
+    // Set the path.
+    $link = Url::fromUserInput($path);
+    $link->setAbsolute();
+    $show_all_item->setUrl($link);
+
+    // If no other facets are selected, default to ALL.
+    if (empty($facet->getActiveItems())) {
+      $show_all_item->setActiveState(TRUE);
+    }
+
+    // All done.
     $results[] = $show_all_item;
 
     return $results;
