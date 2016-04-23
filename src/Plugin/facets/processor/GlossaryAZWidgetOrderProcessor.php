@@ -26,7 +26,7 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
   /**
    * {@inheritdoc}
    */
-  public function sortResults(array $results, $order = 'ASC') {
+  public function sortResults(array $results) {
     // TODO figure out a custom sort instead of ASC DESC
     usort($results, 'self::sortGlossaryAZDefault');
     return $results;
@@ -50,6 +50,9 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     $build['glossaryaz_sort'] = array(
       '#tree' => TRUE,
       '#type' => 'table',
+      '#attributes' => array(
+        'id' => 'glossaryaz-sort-widget',
+      ),
       '#header' => array(
         $this->t('Sort By'),
         $this->t('Weight'),
