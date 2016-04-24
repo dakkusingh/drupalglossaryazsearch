@@ -70,10 +70,14 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     ksort($glossary_results['glossaryaz_sort_09']);
     ksort($glossary_results['glossaryaz_sort_other']);
 
+    // Flatten the array to same structure as $results.
+    $glossary_results_sorted = array();
+    foreach ($glossary_results as $glossary_result) {
+      $glossary_results_sorted = array_merge($glossary_results_sorted, array_values($glossary_result));
+    }
 
-    ksm($glossary_results);
-    ksm(array_values($glossary_results['glossaryaz_sort_09']));
-    return $results;
+    // And its done.
+    return $glossary_results_sorted;
   }
 
 
@@ -125,7 +129,7 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
           ),
       );
     }
-//ksm($build);
+
     return $build;
   }
 
