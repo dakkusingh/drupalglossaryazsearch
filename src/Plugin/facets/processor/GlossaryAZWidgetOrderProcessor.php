@@ -26,9 +26,53 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
   /**
    * {@inheritdoc}
    */
-  public function sortResults(array $results, $order = 'ASC') {
-    // TODO figure out a custom sort instead of ASC DESC
-    usort($results, 'self::sortGlossaryAZDefault');
+  public function sortResults(array $results, $order = '') {
+
+    // Get the custom sort order from config.
+    $sort_options_by_weight = $this->sortConfigurationWeight($order);
+
+    // Initialise an empty array and populate
+    // it with options in the same order as the sort
+    // order defined in the config
+    $glossary_results = array();
+    foreach ($sort_options_by_weight as $sort_option_by_weight_id => $sort_option_by_weight_weight) {
+      //$newarray = array_values($glossary_results[$sort_option_by_weight_id]);
+      //$newarray = array_merge($newarray, array_values($glossary_results[$sort_option_by_weight_id]));
+      $glossary_results[$sort_option_by_weight_id] = array();
+      $glossary_results[$sort_option_by_weight_id] = array();
+      $glossary_results[$sort_option_by_weight_id] = array();
+      $glossary_results[$sort_option_by_weight_id] = array();
+    }
+
+    // Since our new array is already in
+    // the sort order defined in the config
+    // lets step through the results and populate
+    // results into respective containers.
+    foreach ($results as $result) {
+      if ($result->getRawValue() == 'All') {
+        $glossary_results['glossaryaz_sort_all'][$result->getRawValue()] = $result;
+      }
+      // Is it a number? or maybe grouped number eg 0-9 (technically a string).
+      elseif ($result->getRawValue() == '0-9' || ctype_digit($result->getRawValue())) {
+        $glossary_results['glossaryaz_sort_09'][$result->getRawValue()] = $result;
+      }
+      // Is it alpha?
+      elseif (ctype_alpha($result->getRawValue())) {
+        $glossary_results['glossaryaz_sort_az'][$result->getRawValue()] = $result;
+      }
+      // Non alpha numeric.
+      else {
+        $glossary_results['glossaryaz_sort_other'][$result->getRawValue()] = $result;
+      }
+    }
+
+    ksort($glossary_results['glossaryaz_sort_az']);
+    ksort($glossary_results['glossaryaz_sort_09']);
+    ksort($glossary_results['glossaryaz_sort_other']);
+
+
+    ksm($glossary_results);
+    ksm(array_values($glossary_results['glossaryaz_sort_09']));
     return $results;
   }
 
@@ -41,16 +85,11 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     $config = isset($processors[$this->getPluginId()]) ? $processors[$this->getPluginId()] : NULL;
 
     // Get the weight options.
-    $sort_options = !is_null($config) ? $config->getConfiguration()['glossaryaz_sort'] : $this->defaultConfiguration();
-    foreach ($sort_options as $sort_option_id => $sort_option) {
-      $sort_options_by_weight[$sort_option_id] = $sort_option['weight'];
-    }
-
-    // Sort by weight options.
-    asort($sort_options_by_weight);
+    $sort_options = !is_null($config) ? $config->getConfiguration()['sort'] : $this->defaultConfiguration();
+    $sort_options_by_weight = $this->sortConfigurationWeight($sort_options);
 
     // Build the form.
-    $build['glossaryaz_sort'] = array(
+    $build['sort'] = array(
       '#tree' => TRUE,
       '#type' => 'table',
       '#attributes' => array(
@@ -70,12 +109,12 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     );
 
     foreach ($sort_options_by_weight as $sort_option_key => $sort_option_weight) {
-      $build['glossaryaz_sort'][$sort_option_key]['#attributes']['class'][] = 'draggable';
-      $build['glossaryaz_sort'][$sort_option_key]['#attributes']['class'][] = 'glossaryaz-sort-weight--' . $sort_option_key;
-      $build['glossaryaz_sort'][$sort_option_key]['#weight'] = $sort_option_weight;
-      $build['glossaryaz_sort'][$sort_option_key]['sort_by']['#plain_text'] = $this->defaultConfiguration()[$sort_option_key]['name'];
+      $build['sort'][$sort_option_key]['#attributes']['class'][] = 'draggable';
+      $build['sort'][$sort_option_key]['#attributes']['class'][] = 'glossaryaz-sort-weight--' . $sort_option_key;
+      $build['sort'][$sort_option_key]['#weight'] = $sort_option_weight;
+      $build['sort'][$sort_option_key]['sort_by']['#plain_text'] = $this->defaultConfiguration()[$sort_option_key]['name'];
 
-      $build['glossaryaz_sort'][$sort_option_key]['weight'] = array(
+      $build['sort'][$sort_option_key]['weight'] = array(
           '#type' => 'weight',
           '#delta' => count($this->defaultConfiguration()),
           '#default_value' => $sort_option_weight,
@@ -86,7 +125,7 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
           ),
       );
     }
-
+//ksm($build);
     return $build;
   }
 
@@ -119,13 +158,26 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
 
 
   /**
+   * {@inheritdoc}
+   */
+  public function sortConfigurationWeight($sort_options) {
+    foreach ($sort_options as $sort_option_id => $sort_option) {
+      $sort_options_by_weight[$sort_option_id] = $sort_option['weight'];
+    }
+
+    // Sort by weight options.
+    asort($sort_options_by_weight);
+    return $sort_options_by_weight;
+  }
+
+  /**
    * Sorts default.
    */
-  protected static function sortGlossaryAZDefault(Result $a, Result $b) {
+/*  protected static function sortGlossaryAZDefault(Result $a, Result $b) {
 
     // TODO Maybe check if the values are present.
-    $a_value = $a->getDisplayValue();
-    $b_value = $b->getDisplayValue();
+    $a_value = $a->getRawValue();
+    $b_value = $b->getRawValue();
 
     // TODO make some way to make 0-9 configurable.
     // so we can have seperate bins for 0,1,2,3 etc
@@ -149,6 +201,6 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
       return -1;
     }
 
-  }
+  }*/
 
 }
