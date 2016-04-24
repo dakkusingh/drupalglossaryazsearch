@@ -130,6 +130,8 @@ class GlossaryAZItem extends FieldItemBase {
     // TODO make sure this field is not available for selection.
     // disallow self selection
 
+    // TODO only allow text and number fields
+
     foreach ($fields as $field) {
       $options[$field->getName()] = $field->getName();
     }
@@ -143,6 +145,9 @@ class GlossaryAZItem extends FieldItemBase {
       '#disabled' => $has_data,
       '#size' => 1,
     );
+
+    // TODO Allow grouping and ungrouping of
+    // Numbers, alpha and special characters.
 
     return $element;
   }

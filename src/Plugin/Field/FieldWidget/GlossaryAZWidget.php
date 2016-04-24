@@ -123,6 +123,9 @@ class GlossaryAZWidget extends WidgetBase {
    * Getter Helper for Alpha Numeric Keys.
    */
   private function glossaryGetterHelper($first_letter) {
+    // TODO Allow grouping and ungrouping of
+    // Numbers, alpha and special characters.
+
     // Is it alpha?
     if (ctype_alpha($first_letter)) {
       $key = $first_letter;
