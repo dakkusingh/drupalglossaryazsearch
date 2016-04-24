@@ -73,6 +73,7 @@ class GlossaryAZWidget extends WidgetBase {
     $element = [];
 
     $element['value'] = $element + array(
+      '#title' => $this->t('Glossary AZ'),
       '#type' => 'textfield',
       '#disabled' => TRUE,
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
@@ -96,12 +97,13 @@ class GlossaryAZWidget extends WidgetBase {
     $source_field = $this->getFieldSetting('glossary_az_source');
 
     // TODO there seems to be some weird notice about invalid value
-    //$source_value = $form_state->getValue($source_field);
+    $source_value2 = $form_state->getValue('title');
+    //ksm($source_value2);
 
     // TODO Surely there has to be a better way
     $key_exists = NULL;
     $source_value = NestedArray::getValue($form_state->getValues(), array($source_field, '0'), $key_exists)['value'];
-
+    //ksm($source_value);
     $glossary_az = $this->glossaryGetter($source_value);
 
     // TODO put some checks in place to avoid duplicated effort
