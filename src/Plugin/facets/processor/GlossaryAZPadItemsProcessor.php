@@ -26,8 +26,14 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
    */
   public function build(FacetInterface $facet, array $results) {
     $glossary_array = range('A', 'Z');
+
+    // TODO make non alpha numeric expandable
     $glossary_array[] = "#";
+
+    // TODO make 0-9 expandable
     $glossary_array[] = "0-9";
+
+    // Generate keys from values.
     $glossary_missing = array_combine($glossary_array, $glossary_array);
 
     /** @var \Drupal\facets\Result\ResultInterface $result */
