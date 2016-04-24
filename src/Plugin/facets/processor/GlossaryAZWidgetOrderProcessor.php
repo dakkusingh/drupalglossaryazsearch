@@ -26,7 +26,7 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
   /**
    * {@inheritdoc}
    */
-  public function sortResults(array $results) {
+  public function sortResults(array $results, $order = 'ASC') {
     // TODO figure out a custom sort instead of ASC DESC
     usort($results, 'self::sortGlossaryAZDefault');
     return $results;
@@ -40,13 +40,16 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     $processors = $facet->getProcessors();
     $config = isset($processors[$this->getPluginId()]) ? $processors[$this->getPluginId()] : NULL;
 
-    $sort_options = array(
-      'glossaryaz_sort_az' => $this->t('Alpha (A-Z)'),
-      'glossaryaz_sort_09' => $this->t('Numeric (0-9)'),
-      'glossaryaz_sort_other' => $this->t('Other (#)'),
-      'glossaryaz_sort_all' => $this->t('All'),
-    );
+    // Get the weight options.
+    $sort_options = !is_null($config) ? $config->getConfiguration()['glossaryaz_sort'] : $this->defaultConfiguration();
+    foreach ($sort_options as $sort_option_id => $sort_option) {
+      $sort_options_by_weight[$sort_option_id] = $sort_option['weight'];
+    }
 
+    // Sort by weight options.
+    asort($sort_options_by_weight);
+
+    // Build the form.
     $build['glossaryaz_sort'] = array(
       '#tree' => TRUE,
       '#type' => 'table',
@@ -66,19 +69,16 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
       ),
     );
 
-    foreach ($sort_options as $sort_option => $sort_option_display) {
-      $weight = !is_null($config) ? $config->getConfiguration()['glossaryaz_sort'][$sort_option]['weight'] : $this->defaultConfiguration()['glossaryaz_sort'][$sort_option];
-      //ksm($config->getConfiguration()['glossaryaz_sort'][$sort_option]['weight']);
+    foreach ($sort_options_by_weight as $sort_option_key => $sort_option_weight) {
+      $build['glossaryaz_sort'][$sort_option_key]['#attributes']['class'][] = 'draggable';
+      $build['glossaryaz_sort'][$sort_option_key]['#attributes']['class'][] = 'glossaryaz-sort-weight--' . $sort_option_key;
+      $build['glossaryaz_sort'][$sort_option_key]['#weight'] = $sort_option_weight;
+      $build['glossaryaz_sort'][$sort_option_key]['sort_by']['#plain_text'] = $this->defaultConfiguration()[$sort_option_key]['name'];
 
-      $build['glossaryaz_sort'][$sort_option]['#attributes']['class'][] = 'draggable';
-      $build['glossaryaz_sort'][$sort_option]['#attributes']['class'][] = 'glossaryaz-sort-weight--' . $sort_option;
-      $build['glossaryaz_sort'][$sort_option]['#weight'] = $weight;
-      $build['glossaryaz_sort'][$sort_option]['sort_by']['#plain_text'] = $sort_option_display;
-
-      $build['glossaryaz_sort'][$sort_option]['weight'] = array(
+      $build['glossaryaz_sort'][$sort_option_key]['weight'] = array(
           '#type' => 'weight',
-          '#delta' => count($sort_options),
-          '#default_value' => $weight,
+          '#delta' => count($this->defaultConfiguration()),
+          '#default_value' => $sort_option_weight,
           '#attributes' => array(
             'class' => array(
               'glossaryaz-sort-weight',
@@ -95,11 +95,23 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    $sort_options_deafult['glossaryaz_sort'] = array(
-      'glossaryaz_sort_az' => 1,
-      'glossaryaz_sort_09' => 2,
-      'glossaryaz_sort_other' => 3,
-      'glossaryaz_sort_all' => 4,
+    $sort_options_deafult = array(
+      'glossaryaz_sort_az' => array(
+        'weight' => 1,
+        'name' => $this->t('Alpha (A-Z)'),
+      ),
+      'glossaryaz_sort_09' => array(
+        'weight' => 2,
+        'name' => $this->t('Numeric (0-9)'),
+      ),
+      'glossaryaz_sort_other' => array(
+        'weight' => 3,
+        'name' => $this->t('Other (#)'),
+      ),
+      'glossaryaz_sort_all' => array(
+        'weight' => -1,
+        'name' => $this->t('All'),
+      ),
     );
 
     return $sort_options_deafult;
