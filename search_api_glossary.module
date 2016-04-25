@@ -3,3 +3,47 @@
  * @file
  * Search api glossary module file.
  */
+/*
+function search_api_glossary_entity_type_alter(array &$entity_types) {
+  ksm($entity_types['node']);
+}
+*/
+use Drupal\Core\Field\BaseFieldDefinition;
+
+function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
+  //$callback = drupal_get_path('module', 'search_api_glossary') . '/search_api_glossary_mockDefaultValueCallback';
+
+  if ($entity_type->id() == 'node') {
+    $fields = array();
+    $fields['mymodule_text'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('The text'))
+      ->setDescription(t('A text property added by mymodule.'))
+      ->setTranslatable(FALSE)
+      ->setRevisionable(FALSE)
+      ->setSetting('max_length', 3)
+      ->setReadOnly(TRUE)
+      ->setComputed(TRUE)
+      ->setDefaultValue('');
+      //->setClass('\Drupal\mymodule\EntityComputedText');
+      //->setDefaultValueCallback('search_api_glossary_mockDefaultValueCallback');
+//ksm($callback);
+    return $fields;
+  }
+
+}
+/*
+function search_api_glossary_mockDefaultValueCallback() {
+  return 'yeehaaa';
+}
+*/
+
+function search_api_glossary_search_api_index_items_alter(\Drupal\search_api\IndexInterface $index, array &$items) {
+  //ksm(array($index, $items));
+  foreach ($items as $item) {
+    $title = $item->getField('title')->getValues();
+    $mymodule_text = $item->getField('mymodule_text')->addValue($title);
+    //ksm($item->getField('title'));
+    ksm($mymodule_text);
+  }
+  //ksm();
+}
