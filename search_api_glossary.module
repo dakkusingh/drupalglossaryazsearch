@@ -177,9 +177,9 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
   $config = \Drupal::configFactory()->getEditable('search_api_glossary.settings');
 
   foreach ($fields as $field_name => $field_values) {
-    if (isset($field_values['glossary_az']) && $field_values['glossary_az'] == 1) {
-      $entity_type_clean = str_replace('entity:', '', $field_settings_array[$field_name]['datasource_id']);
+    $entity_type_clean = str_replace('entity:', '', $field_settings_array[$field_name]['datasource_id']);
 
+    if (isset($field_values['glossary_az']) && $field_values['glossary_az'] == 1) {
       $config_values = array(
         'enabled' => $field_values['glossary_az'],
         'entity_type' => $entity_type_clean,
@@ -193,11 +193,13 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
     }
     else {
       // Clear the unused variable choices.
-      // @TODO instead of clearing the settings,
-      // Mark these so they can be removed
-      // in hook_entity_base_field_info().
       $config->clear($field_name)->save();
     }
+
+    // @TODO Somehow mark the removed fields,
+    // so they can be removed in
+    // hook_entity_base_field_info().
+    // Maybe hook into field remove?
   }
 
   // @TODO
