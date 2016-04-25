@@ -104,6 +104,7 @@ function search_api_glossary_glossary_getter_helper($first_letter, $glossary_az_
  */
 function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStateInterface $form_state) {
   $config = \Drupal::config('search_api_glossary.settings');
+  ksm($config);
   $entity = $form_state->getFormObject()->getEntity();
 
   // @TODO Check if there are any limitations,
@@ -129,25 +130,20 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
 
       // @TODO identify glossary fields and skip them.
       if ($field_name != 'field_new_glossary_az') {
-
         if (!$locked && in_array($field_type, $allowed_field_types)) {
-          //ksm($field_name);
-
           $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
             '#type' => 'checkbox',
             '#title' => t('Enable'),
-            '#default_value' => $config->get($field_name),
+            '#default_value' => $config->get($field_name)['enabled'],
           );
 
-          //ksm($field_instance->getDataDefinition()->getFieldDefinition()->toArray());
           // Array to identify which header(s) to alter.
           $datasource_ids[$datasource_id] = $datasource_id;
         }
+
       }
     }
   }
-
-  ksm($form);
 
   // Add glossary header to each fieldset.
   foreach ($datasource_ids as $datasource_id_unique) {
@@ -157,61 +153,6 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
   // Add a custom submit handler to save the array of types back to the config file.
   $form['actions']['submit']['#submit'][] = 'search_api_glossary_search_api_index_fields_submit';
 
-
-
-
-
-/*
-  $field_instances = $entity->get('fieldInstances');
-  //ksm($field_instances);
-  $datasource_ids = array();
-
-  $config = \Drupal::config('search_api_glossary.settings');
-
-  foreach ($field_instances as $field_instance) {
-    //Set the allowed fields
-    $field_name = $field_instance->getFieldIdentifier();
-    $field_label = $field_instance->getLabel();
-    $field_type = $field_instance->getType();
-    $datasource_id = $field_instance->getDatasourceId();
-    $datasource_id_clean = NULL;
-
-    if ($datasource_id) {
-      $datasource_id_clean = str_replace('entity:', '', $datasource_id);
-    }
-
-    $locked = $field_instance->isTypeLocked();
-
-    //ksm($field_instance);
-  }*/
-
-
-
-  //$entity = \Drupal::entityManager()->getStorage('field_config');
-  //ksm($entity);
-  //$entity_type = \Drupal::entityManager()->getDefinition('node');
-  //ksm($entity_type);
-  //$foo  = \Drupal::entityManager()->getFieldDefinitions('node', 'article');
-  //ksm($foo);
-
-  //$field_info = FieldConfig::loadByName('node', 'article', 'field_new_glossary_az');
-  //$field_info = FieldConfig::load('node.article.field_new_glossary_az');
-  //ksm($field_info);
-
-  /*
-  $field_instance = array(
-    'field_name' => 'field_new_glossary_az',
-    'entity_type' => 'node',
-    //'bundle' => 'page',
-    //'bundles' => $bundles,
-    'label' => 'Glossary AZ for Title',
-    'translatable' => FALSE,
-  );
-
-  $field = \Drupal::entityManager()->getStorage('field_config')->create($field_instance);
-  $field->save();*/
-  //ksm(\Drupal::entityManager()->getStorage('field_config')->load('node.page.field_new_glossary_az'));
-
 }
 
 
@@ -220,38 +161,24 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
   $fields = $values['fields'];
 
   $entity = $form_state->getFormObject()->getEntity();
-  $field_settings = $entity->get('field_settings');
-  $datasource_settings = $entity->get('datasource_settings');
-  //ksm($field_settings);
-  //ksm($datasource_settings);
+  $field_settings_array = $entity->get('field_settings');
 
   $config = \Drupal::configFactory()->getEditable('search_api_glossary.settings');
 
   foreach ($fields as $field_name => $field_values) {
-    $field_type = $field_values['type'];
+    if (isset($field_values['glossary_az']) && $field_values['glossary_az'] == 1) {
+      $entity_type_clean = str_replace('entity:', '', $field_settings_array[$field_name]['datasource_id']);
 
-    if (isset($field_values['glossary_az']) && ($field_type == 'integer' || $field_type == 'text' || $field_type == 'string')) {
-      // Set the variables.
-      $config->set($field_name, $field_values['glossary_az'])->save();
-
-      // If this is a node entity, there maybe a bundle
-      $bundles = array();
-      if ($datasource_settings[$field_settings[$field_type]['datasource_id']]['settings']['bundles']) {
-        $bundles = $datasource_settings[$field_settings[$field_type]['datasource_id']]['settings']['bundles'];
-      }
-
-      $entity_type_clean = str_replace('entity:', '', $field_settings[$field_type]['datasource_id']);
-      //TODO: Check if field already exists
-      $field_instance = array(
-        'field_name' => 'field_new_glossary_az',
+      $config_values = array(
+        'enabled' => $field_values['glossary_az'],
         'entity_type' => $entity_type_clean,
-        'bundle' => 'page',
-        'bundles' => $bundles,
-        'label' => 'Glossary AZ for ' . $field_settings[$field_type]['label'],
-        'translatable' => FALSE,
+        'field_type' => $field_values['type'],
+        'field_name' => $field_name,
+        'label' => $field_settings_array[$field_name]['label'],
       );
 
-      //search_api_glossary_field_instance_create($field_instance);
+      // Set the variables.
+      $config->set($field_name, $config_values)->save();
     }
     else {
       // Clear the unused variable choices.
@@ -259,11 +186,8 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
     }
   }
 
-  // Get info about the selected field
-  //$foo = \Drupal::entityManager()->getDefinition('node');
-
-
-//$field_settings[$field_name]
+  // @TODO
+  // clear caches
 
 
 }
