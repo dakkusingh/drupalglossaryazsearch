@@ -24,12 +24,14 @@ use Drupal\Core\Routing\RouteMatchInterface;
  *   description = @Translation("An entity field containing a Glossary AZ.") * )
  */
 class GlossaryAZItem extends FieldItemBase {
+
   /**
    * {@inheritdoc}
    */
   public static function defaultStorageSettings() {
     return array(
       'glossary_az_source' => NULL,
+      'glossary_az_grouping' => array('glossary_az_grouping_09', 'glossary_az_grouping_other'),
       //'is_ascii' => FALSE,
       'case_sensitive' => FALSE,
     ) + parent::defaultStorageSettings();
@@ -121,19 +123,36 @@ class GlossaryAZItem extends FieldItemBase {
    */
   public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
     // TODO Maybe there is a better way to do all of this
-
+    $field_types = $this->getFieldDefinition();
     $bundle = $this->getFieldDefinition()->get('bundle');
     $entity_type = $this->getFieldDefinition()->get('entity_type');
-
     $fields = \Drupal::entityManager()->getFieldDefinitions($entity_type, $bundle);
 
-    // TODO make sure this field is not available for selection.
-    // disallow self selection
+    // TODO Maybe there is a better way to identify
+    $included_types = array(
+      'string',
+      'text_with_summary',
+      'integer',
+    );
 
-    // TODO only allow text and number fields
+    foreach ($fields as $field_definition) {
 
-    foreach ($fields as $field) {
-      $options[$field->getName()] = $field->getName();
+      /*ksm(array(
+        //$field_definition,
+        $field_definition->getFieldStorageDefinition(),
+        //$field_definition->getDisplayOptions('form'),
+        //$field_definition->getItemDefinition()->getPropertyDefinitions(),
+        //$field_definition->getItemDefinition()->getPropertyDefinitions(),
+        //$field_definition->getItemDefinition()->getPropertyDefinitions()->getDataType(),
+        $field_definition->getType(),
+        $field_definition->getName())
+      );*/
+
+      // TODO this could do with improvement
+      if (in_array($field_definition->getType(), $included_types)) {
+        $options[$field_definition->getName()] = $field_definition->getLabel();
+      }
+
     }
 
     $element['glossary_az_source'] = array(
@@ -142,12 +161,24 @@ class GlossaryAZItem extends FieldItemBase {
       '#options' => $options,
       '#default_value' => $this->getSetting('glossary_az_source'),
       '#required' => TRUE,
-      '#disabled' => $has_data,
+      #'#disabled' => $has_data,
       '#size' => 1,
     );
 
-    // TODO Allow grouping and ungrouping of
-    // Numbers, alpha and special characters.
+    $element['glossary_az_grouping'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Group Glossary AZ Indexes'),
+      '#description' => t('When grouping is enabled, individual values such as 1, 2, 3 will go into a grouped index like "0-9"'),
+      '#options' => array(
+        'glossary_az_grouping_az' => 'Group Alphabetic Values (A-Z)',
+        'glossary_az_grouping_09' => 'Group Numeric Values (0-9)',
+        'glossary_az_grouping_other' => 'Group Non Alpha Numeric Values (#)',
+      ),
+      '#default_value' => $this->getSetting('glossary_az_grouping'),
+      '#required' => FALSE,
+      #'#disabled' => $has_data,
+      '#size' => 1,
+    );
 
     return $element;
   }

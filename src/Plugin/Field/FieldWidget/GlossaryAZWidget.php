@@ -73,7 +73,7 @@ class GlossaryAZWidget extends WidgetBase {
     $element = [];
 
     $element['value'] = $element + array(
-      '#title' => $this->t('Glossary AZ'),
+      '#title' => $this->t('Glossary AZ for ' . $this->getFieldSetting('glossary_az_source')),
       '#type' => 'textfield',
       '#disabled' => TRUE,
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
@@ -95,18 +95,20 @@ class GlossaryAZWidget extends WidgetBase {
     $value = $element['#value'];
 
     $source_field = $this->getFieldSetting('glossary_az_source');
+    $glossary_az_grouping = $this->getFieldSetting('glossary_az_grouping');
 
     // TODO there seems to be some weird notice about invalid value
-    $source_value2 = $form_state->getValue('title');
+    //$source_value2 = $form_state->getValue('title');
     //ksm($source_value2);
 
     // TODO Surely there has to be a better way
-    $key_exists = NULL;
-    $source_value = NestedArray::getValue($form_state->getValues(), array($source_field, '0'), $key_exists)['value'];
+    $source_value = NestedArray::getValue($form_state->getValues(), array($source_field, '0'))['value'];
     //ksm($source_value);
-    $glossary_az = $this->glossaryGetter($source_value);
 
-    // TODO put some checks in place to avoid duplicated effort
+    // Get the Glossary AZ Index value.
+    $glossary_az = $this->glossaryGetter($source_value, $glossary_az_grouping);
+
+    // Check in place to avoid duplicated effort.
     if ($glossary_az != $value) {
       $form_state->setValueForElement($element, $glossary_az);
     }
@@ -116,35 +118,38 @@ class GlossaryAZWidget extends WidgetBase {
   /**
    * Getter callback for title_az_glossary property.
    */
-  private function glossaryGetter($source_value) {
+  private function glossaryGetter($source_value, $glossary_az_grouping) {
     $first_letter = strtoupper($source_value)[0];
-    return $this->glossaryGetterHelper($first_letter);
+    return $this->glossaryGetterHelper($first_letter, $glossary_az_grouping);
   }
 
   /**
    * Getter Helper for Alpha Numeric Keys.
    */
-  private function glossaryGetterHelper($first_letter) {
-    // TODO Allow grouping and ungrouping of
-    // Numbers, alpha and special characters.
+  private function glossaryGetterHelper($first_letter, $glossary_az_grouping) {
+    $key = $first_letter;
+    //ksm($glossary_az_grouping);
 
-    // Is it alpha?
-    if (ctype_alpha($first_letter)) {
-      $key = $first_letter;
+    // Is it Alpha?
+    // Do we have Alpha grouping?
+    if (ctype_alpha($first_letter) && in_array('glossary_az_grouping_az', $glossary_az_grouping)) {
+      $first_letter = "A-Z";
     }
     // Is it a number?
-    elseif (ctype_digit($first_letter)) {
-      // TODO Make this configurable.
-      // So users can have 0,1,2 or
-      // 0-9 as a bucket
-      $key = "0-9";
+    // Do we have Numeric grouping?
+    elseif (ctype_digit($first_letter) && in_array('glossary_az_grouping_09', $glossary_az_grouping)) {
+      $first_letter = "0-9";
     }
-    // Catch all.
-    else {
-      $key = "#";
+    // Catch non alpha numeric.
+    // Do we have Non Alpha Numeric grouping?
+    elseif (in_array('glossary_az_grouping_other', $glossary_az_grouping)) {
+      $first_letter = "#";
     }
 
-    return $key;
+    
+
+    // All done, return the key
+    return $first_letter;
   }
 
 }
