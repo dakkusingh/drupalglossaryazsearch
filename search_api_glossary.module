@@ -3,15 +3,10 @@
  * @file
  * Search api glossary module file.
  */
-/*
-function search_api_glossary_entity_type_alter(array &$entity_types) {
-  ksm($entity_types['node']);
-}
-*/
+
 use Drupal\Core\Field\BaseFieldDefinition;
 
 use Drupal\Core\Form\FormStateInterface;
-//use Drupal\Core\Form\ConfigFormBase;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Entity\EntityTypeInterface;
 
@@ -20,6 +15,9 @@ use Drupal\Core\Entity\EntityTypeInterface;
  * Implements hook_entity_base_field_info.
  */
 function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
+
+  $config = \Drupal::config('search_api_glossary.settings');
+
   // @TODO loop through the settings
   if ($entity_type->id() == 'node') {
     $fields = array();
@@ -41,7 +39,6 @@ function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTy
  * Implements hook_search_api_index_items_alter.
  */
 function search_api_glossary_search_api_index_items_alter(\Drupal\search_api\IndexInterface $index, array &$items) {
-  //ksm(array($index, $items));
   foreach ($items as $item) {
     // Get values from source field.
     // @TODO Maybe step through the array for value
@@ -104,7 +101,7 @@ function search_api_glossary_glossary_getter_helper($first_letter, $glossary_az_
  */
 function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStateInterface $form_state) {
   $config = \Drupal::config('search_api_glossary.settings');
-  ksm($config);
+  ksm($config->get());
   $entity = $form_state->getFormObject()->getEntity();
 
   // @TODO Check if there are any limitations,
