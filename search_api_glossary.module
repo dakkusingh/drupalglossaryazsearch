@@ -101,11 +101,6 @@ function search_api_glossary_glossary_getter_helper($first_letter, $glossary_az_
 }
 
 
-
-
-
-
-
 /**
  * Add search_api_glossary settings to Search API Index configuration.
  * Implements hook_form_FORM_ID_alter()
@@ -148,6 +143,8 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
             '#default_value' => $config->get($field_name)['enabled'],
           );
 
+          // @TODO Add grouping settings
+
           // Array to identify which header(s) to alter.
           $datasource_ids[$datasource_id] = $datasource_id;
         }
@@ -176,6 +173,8 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
 
   $config = \Drupal::configFactory()->getEditable('search_api_glossary.settings');
 
+  $clear_cache = FALSE;
+
   foreach ($fields as $field_name => $field_values) {
     $entity_type_clean = str_replace('entity:', '', $field_settings_array[$field_name]['datasource_id']);
 
@@ -187,6 +186,14 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
         'field_name' => $field_name,
         'label' => $field_settings_array[$field_name]['label'],
       );
+
+      // If Glossary option is enabled
+      // on any of the fields, clear cache
+      // So these fields can be added in
+      // hook_entity_base_field_info().
+      // @TODO Only clear caches if new
+      // options are selected. Avoid repeat flushing. 
+      $clear_cache = TRUE;
 
       // Set the variables.
       $config->set($field_name, $config_values)->save();
@@ -202,8 +209,16 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
     // Maybe hook into field remove?
   }
 
-  // @TODO
   // clear caches
-
+  try {
+    //@TODO  Make this lighter?
+    drupal_flush_all_caches();
+    drupal_set_message(t("Glossary fields have been created for the chosen fields. " .
+      "These newly created Glossary fields can now be added by clicking on ADD FIELDS button."));
+  }
+  catch (Exception $e) {
+    drupal_set_message(t("Cache was not cleared, you must clear your cache manually "
+      . "to see the new glossary fields"));
+  }
 
 }
