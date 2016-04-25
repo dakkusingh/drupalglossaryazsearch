@@ -15,23 +15,35 @@ use Drupal\Core\Entity\EntityTypeInterface;
  * Implements hook_entity_base_field_info.
  */
 function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
-
+  // Load up config and loop though settings.
   $config = \Drupal::config('search_api_glossary.settings');
+  $search_api_glossary_settings = $config->get();
 
-  // @TODO loop through the settings
-  if ($entity_type->id() == 'node') {
-    $fields = array();
-    $fields['mymodule_text'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('The text'))
-      ->setDescription(t('A text property added by mymodule.'))
-      ->setTranslatable(FALSE)
-      ->setRevisionable(FALSE)
-      ->setSetting('max_length', 3)
-      ->setReadOnly(TRUE)
-      ->setComputed(TRUE)
-      ->setDefaultValue('');
-    return $fields;
+  if (!empty($search_api_glossary_settings)) {
+    // Loop through the saved config from
+    // Search API field settings form.
+    foreach ($search_api_glossary_settings as $key => $value) {
+      $glossary_field_id = 'field_glossaryaz_' . $value['entity_type'] . '_' . $value['field_name'];
+      $glossary_field_name = $value['label'] . ' Glossary';
+      $glossary_field_desc = 'Glossary field for ' . $value['label'] . '.';
+
+      // Create the fields.
+      if ($entity_type->id() == $value['entity_type']) {
+        $fields = array();
+        $fields[$glossary_field_id] = BaseFieldDefinition::create('string')
+          ->setLabel(t($glossary_field_name))
+          ->setDescription(t($glossary_field_desc))
+          ->setTranslatable(FALSE)
+          ->setRevisionable(FALSE)
+          ->setSetting('max_length', 3)
+          ->setReadOnly(TRUE)
+          ->setComputed(TRUE)
+          ->setDefaultValue('');
+        return $fields;
+      }
+    }
   }
+
 }
 
 
@@ -101,7 +113,6 @@ function search_api_glossary_glossary_getter_helper($first_letter, $glossary_az_
  */
 function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStateInterface $form_state) {
   $config = \Drupal::config('search_api_glossary.settings');
-  ksm($config->get());
   $entity = $form_state->getFormObject()->getEntity();
 
   // @TODO Check if there are any limitations,
@@ -125,8 +136,11 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
       $field_type = $field_settings_array['type'];
       $locked = $field->isTypeLocked();
 
-      // @TODO identify glossary fields and skip them.
-      if ($field_name != 'field_new_glossary_az') {
+      // Identify glossary fields and skip them.
+      // Glossary field should be excluded always.
+      // @TODO Glossary field TYPE should always be STRING.
+      // Make it default and prevent changing.
+      if (substr($field_name, 0, strlen('field_glossaryaz')) !== 'field_glossaryaz') {
         if (!$locked && in_array($field_type, $allowed_field_types)) {
           $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
             '#type' => 'checkbox',
@@ -179,6 +193,9 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
     }
     else {
       // Clear the unused variable choices.
+      // @TODO instead of clearing the settings,
+      // Mark these so they can be removed
+      // in hook_entity_base_field_info().
       $config->clear($field_name)->save();
     }
   }
