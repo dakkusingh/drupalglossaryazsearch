@@ -7,7 +7,6 @@ use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\facets\FacetInterface;
 use Drupal\facets\Result\ResultInterface;
-use Drupal\facets\Result\Result;
 use Drupal\facets\Widget\WidgetInterface;
 
 /**

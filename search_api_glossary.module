@@ -6,7 +6,6 @@
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\search_api\IndexInterface;
 
@@ -54,7 +53,8 @@ function search_api_glossary_search_api_index_items_alter(IndexInterface $index,
   /*
   if (!empty($search_api_glossary_settings)) {
     ksm($search_api_glossary_settings);
-  }*/
+  }
+  */
 
   foreach ($items as $item) {
     $item_fields = $item->getFields();
@@ -80,10 +80,11 @@ function search_api_glossary_search_api_index_items_alter(IndexInterface $index,
     // @TODO Maybe step through the array for value
     //$source_field_value = $item->getField('title')->getValues()[0];
 
-    // Glossary process
+    // Glossary process.
     //$glossary_value = search_api_glossary_glossary_getter($source_field_value);
 
     // @TODO Check if the glossary fields exists
+
     // Set the title.
     //$item->getField('mymodule_text')->addValue($glossary_value);
   }

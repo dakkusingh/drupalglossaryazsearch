@@ -4,8 +4,6 @@ namespace Drupal\search_api_glossary\Plugin\facets\processor;
 
 use Drupal\facets\Processor\WidgetOrderPluginBase;
 use Drupal\facets\Processor\WidgetOrderProcessorInterface;
-use Drupal\facets\Result\Result;
-
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\facets\FacetInterface;
 
