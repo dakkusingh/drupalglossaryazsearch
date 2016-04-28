@@ -53,8 +53,8 @@ class GlossaryAZWidget implements WidgetInterface {
 
     if ($enable_default_theme) {
       $build['#attached'] = array(
-        'library' =>  array(
-          'search_api_glossary/drupal.search_api_glossary.facet_css'
+        'library' => array(
+          'search_api_glossary/drupal.search_api_glossary.facet_css',
         ),
       );
     }
@@ -78,7 +78,6 @@ class GlossaryAZWidget implements WidgetInterface {
     $classes = ['facet-item', 'glossaryaz'];
     // Not sure if glossary will have children.
     // Removed chilren processing for now.
-
     $items = $this->prepareLink($result, $show_count);
 
     if ($result->isActive()) {
@@ -89,7 +88,7 @@ class GlossaryAZWidget implements WidgetInterface {
       $items['#attributes'] = ['class' => 'is-inactive'];
     }
 
-    // Add result, no result classes
+    // Add result, no result classes.
     if ($result->getCount() == 0) {
       $classes[] = 'no-results';
     }
@@ -101,7 +100,6 @@ class GlossaryAZWidget implements WidgetInterface {
 
     return $items;
   }
-
 
   /**
    * Returns the text or link for an item.
@@ -131,7 +129,6 @@ class GlossaryAZWidget implements WidgetInterface {
 
     return $link;
   }
-
 
   /**
    * {@inheritdoc}

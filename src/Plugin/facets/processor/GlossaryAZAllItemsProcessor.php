@@ -29,7 +29,7 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
     $show_all_item = new Result('All', 'All', count($results));
 
     // Process the results count.
-    $show_all_item_count =  0;
+    $show_all_item_count = 0;
     foreach ($results as $result) {
       $show_all_item_count += $result->getCount();
     }

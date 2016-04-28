@@ -5,16 +5,15 @@
  */
 
 use Drupal\Core\Field\BaseFieldDefinition;
-
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Core\Entity\EntityTypeInterface;
-
+use Drupal\search_api\IndexInterface;
 
 /**
- * Implements hook_entity_base_field_info.
+ * Implements hook_entity_base_field_info().
  */
-function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
+function search_api_glossary_entity_base_field_info(EntityTypeInterface $entity_type) {
   // Load up config and loop though settings.
   $config = \Drupal::config('search_api_glossary.settings');
   $search_api_glossary_settings = $config->get();
@@ -44,11 +43,10 @@ function search_api_glossary_entity_base_field_info(\Drupal\Core\Entity\EntityTy
 
 }
 
-
 /**
- * Implements hook_search_api_index_items_alter.
+ * Implements hook_search_api_index_items_alter().
  */
-function search_api_glossary_search_api_index_items_alter(\Drupal\search_api\IndexInterface $index, array &$items) {
+function search_api_glossary_search_api_index_items_alter(IndexInterface $index, array &$items) {
   // Load up config and loop though settings.
   $config = \Drupal::config('search_api_glossary.settings');
   $search_api_glossary_settings = $config->get();
@@ -63,21 +61,20 @@ function search_api_glossary_search_api_index_items_alter(\Drupal\search_api\Ind
 
     // Loop through all fields.
     foreach ($item_fields as $field_name => $field_values) {
-      // Only operate on genuine fields that are enabled
-      if (key_exists($field_name, $search_api_glossary_settings) && $search_api_glossary_settings[$field_name]['enabled'] == 1) {
+      // Only operate on genuine fields that are enabled.
+      if (array_key_exists($field_name, $search_api_glossary_settings) && $search_api_glossary_settings[$field_name]['enabled'] == 1) {
         $source_field_value = $field_values->getValues()[0];
 
-        // Glossary process
+        // Glossary process.
         $glossary_value = search_api_glossary_glossary_getter($source_field_value);
         $target_field_id = $search_api_glossary_settings[$field_name]['glossary_field_id'];
 
-        // Set the Target Glossary value
+        // Set the Target Glossary value.
         $item->getField($target_field_id)->addValue($glossary_value);
       }
 
     }
     //ksm($item->getFields());
-
 
     // Get values from source field.
     // @TODO Maybe step through the array for value
@@ -86,12 +83,11 @@ function search_api_glossary_search_api_index_items_alter(\Drupal\search_api\Ind
     // Glossary process
     //$glossary_value = search_api_glossary_glossary_getter($source_field_value);
 
-    // @TODO Check if the glossary fields exisit
+    // @TODO Check if the glossary fields exists
     // Set the title.
     //$item->getField('mymodule_text')->addValue($glossary_value);
   }
 }
-
 
 /**
  * Getter callback for title_az_glossary property.
@@ -123,15 +119,13 @@ function search_api_glossary_glossary_getter_helper($first_letter, $glossary_az_
     $first_letter = "#";
   }
 
-  // All done, return the key
+  // All done, return the key.
   return $first_letter;
 }
-
 
 /**
  * Add search_api_glossary settings to Search API Index configuration.
  * Implements hook_form_FORM_ID_alter()
- * @see \Drupal\search_api\Form\IndexFieldsForm method buildForm at /modules/search_api/src/Form/IndexFieldsForm.php
  */
 function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStateInterface $form_state) {
   $config = \Drupal::config('search_api_glossary.settings');
@@ -185,11 +179,11 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
     $form[$datasource_id_unique]['#header'][] = t('Glossary AZ');
   }
 
-  // Add a custom submit handler to save the array of types back to the config file.
+  // Add a custom submit handler to save the
+  // array of types back to the config file.
   $form['actions']['submit']['#submit'][] = 'search_api_glossary_search_api_index_fields_submit';
 
 }
-
 
 function search_api_glossary_search_api_index_fields_submit($form, FormStateInterface $form_state) {
   $values = $form_state->getValues();
@@ -241,15 +235,14 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
     // so they can be removed in
     // hook_entity_base_field_info().
     // Maybe hook into field remove?
-
     // @TODO When parent field is removed,
     // Hook somewhere and remove the corresponding
     // Glossary field too.
   }
 
-  // clear caches
+  // Clear caches.
   try {
-    //@TODO  Make this lighter?
+    // @TODO  Make this lighter?
     drupal_flush_all_caches();
     drupal_set_message(t("Glossary fields have been created for the chosen fields. " .
       "These newly created Glossary fields can now be added by clicking on ADD FIELDS button."));

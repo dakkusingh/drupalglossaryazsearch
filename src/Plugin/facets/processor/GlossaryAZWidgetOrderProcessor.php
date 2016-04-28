@@ -33,7 +33,7 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
 
     // Initialise an empty array and populate
     // it with options in the same order as the sort
-    // order defined in the config
+    // order defined in the config.
     $glossary_results = array();
     foreach ($sort_options_by_weight as $sort_option_by_weight_id => $sort_option_by_weight_weight) {
       //$newarray = array_values($glossary_results[$sort_option_by_weight_id]);
@@ -80,7 +80,6 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     return $glossary_results_sorted;
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -119,20 +118,19 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
       $build['sort'][$sort_option_key]['sort_by']['#plain_text'] = $this->defaultConfiguration()[$sort_option_key]['name'];
 
       $build['sort'][$sort_option_key]['weight'] = array(
-          '#type' => 'weight',
-          '#delta' => count($this->defaultConfiguration()),
-          '#default_value' => $sort_option_weight,
-          '#attributes' => array(
-            'class' => array(
-              'glossaryaz-sort-weight',
-            ),
+        '#type' => 'weight',
+        '#delta' => count($this->defaultConfiguration()),
+        '#default_value' => $sort_option_weight,
+        '#attributes' => array(
+          'class' => array(
+            'glossaryaz-sort-weight',
           ),
+        ),
       );
     }
 
     return $build;
   }
-
 
   /**
    * {@inheritdoc}
@@ -159,7 +157,6 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
 
     return $sort_options_deafult;
   }
-
 
   /**
    * {@inheritdoc}
