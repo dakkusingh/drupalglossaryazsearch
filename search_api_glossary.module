@@ -105,6 +105,7 @@ function search_api_glossary_glossary_getter_helper($first_letter, $glossary_az_
 
 /**
  * Add search_api_glossary settings to Search API Index configuration.
+ *
  * Implements hook_form_FORM_ID_alter()
  */
 function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStateInterface $form_state) {
@@ -149,21 +150,85 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
           // Array to identify which header(s) to alter.
           $datasource_ids[$datasource_id] = $datasource_id;
         }
-
       }
     }
   }
 
   // Add glossary header to each fieldset.
-  foreach ($datasource_ids as $datasource_id_unique) {
-    $form[$datasource_id_unique]['#header'][] = t('Glossary AZ');
+  if (!empty($datasource_ids)) {
+    foreach ($datasource_ids as $datasource_id_unique) {
+      $form[$datasource_id_unique]['#header'][] = t('Glossary');
+    }
   }
+
+  // Add a custom validate handler.
+  $form['actions']['submit']['#validate'][] = 'search_api_glossary_search_api_index_fields_validate';
 
   // Add a custom submit handler to save the
   // array of types back to the config file.
   $form['actions']['submit']['#submit'][] = 'search_api_glossary_search_api_index_fields_submit';
 }
 
+/**
+ * Validate search_api_glossary settings for Search API Index configuration.
+ */
+function search_api_glossary_search_api_index_fields_validate($form, FormStateInterface $form_state) {
+  $values = $form_state->getValues();
+  $fields = $values['fields'];
+
+  $entity = $form_state->getFormObject()->getEntity();
+  $field_settings_array = $entity->get('field_settings');
+
+  // If a glossary field exists but
+  // parent field has been removed or
+  // Glossary option is disabled and
+  // Glossary field is still enabled
+  // throw an error.
+
+  foreach ($fields as $field_name => $field_values) {
+    $entity_type_clean = str_replace('entity:', '', $field_settings_array[$field_name]['datasource_id']);
+
+    // Identify glossary fields and check parents.
+    // This case would occur if Glossary field is added
+    // but parent is removed or disabled.
+    if (substr($field_name, 0, strlen('field_glossaryaz')) === 'field_glossaryaz') {
+      // Check if the parent field for
+      // this glossary field exists and is enabled.
+      // @todo move this to a helper function.
+      $glossary_parent_field = str_replace('field_glossaryaz_' . $entity_type_clean . '_', '', $field_name);
+
+      // We dont seem to have a parent field for Glossary.
+      if (!array_key_exists($glossary_parent_field, $fields)) {
+        // Throw an exception to remove the Glossary field.
+        $form_state->setErrorByName($field_name, t(
+          '@parent field is missing or removed. Please remove @glossary field or add @parent field.',
+          array(
+            '@parent' => $glossary_parent_field,
+            '@glossary' => $field_settings_array[$field_name]['label']
+          )
+        ));
+      }
+      // We have parent for glossary and
+      // glossary option is disabled.
+      elseif ($fields[$glossary_parent_field]['glossary_az'] == 0) {
+        // Throw an exception to remove the Glossary field.
+        // Or enable glossary option.
+        $form_state->setErrorByName($field_name, t(
+          '@parent field does not have Glossary enabled. Please remove @glossary field or enable Glossary on @parent field.',
+          array(
+            '@parent' => $field_settings_array[$glossary_parent_field]['label'],
+            '@glossary' => $field_settings_array[$field_name]['label']
+          )
+        ));
+      }
+
+    }
+  }
+}
+
+/**
+ * Save search_api_glossary settings for Search API Index configuration.
+ */
 function search_api_glossary_search_api_index_fields_submit($form, FormStateInterface $form_state) {
   $values = $form_state->getValues();
   $fields = $values['fields'];
@@ -209,15 +274,6 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
       $config->clear($field_name)->save();
       $config->clear($config_values['glossary_field_id'])->save();
     }
-
-    // @todo Somehow mark the removed fields,
-    // so they can be removed in
-    // hook_entity_base_field_info().
-    // Maybe hook into field remove?
-
-    // @todo When parent field is removed,
-    // Hook somewhere and remove the corresponding
-    // Glossary field too.
   }
 
   // Clear caches.
