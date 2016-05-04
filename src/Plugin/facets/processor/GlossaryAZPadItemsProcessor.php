@@ -25,14 +25,42 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet, array $results) {
-    $glossary_array = range('A', 'Z');
+    $glossary_field_id = $facet->getFieldIdentifier();
 
-    // @todo make non alpha numeric expandable.
-    $glossary_array[] = "#";
+    // Load up config and loop though settings.
+    $config = \Drupal::config('search_api_glossary.settings');
+    $glossary_field_settings = $config->get($glossary_field_id);
 
-    // @todo make 0-9 expandable.
-    $glossary_array[] = "0-9";
+    // Is this a glossary field?
+    if ($glossary_field_settings == NULL) {
+      return $results;
+    }
 
+    $glossary_az_grouping = array_values($glossary_field_settings['glossary_az_grouping']);
+
+    $glossary_array = array();
+    // If Alpha grouping is not set, pad alpha.
+    if (!in_array('glossary_az_grouping_az', $glossary_az_grouping, TRUE)) {
+      $glossary_array = array_merge($glossary_array, range('A', 'Z'));
+    }
+    else {
+      $glossary_array[] = "A-Z";
+    }
+
+    // If Numeric grouping is not set, pad alpha.
+    if (!in_array('glossary_az_grouping_09', $glossary_az_grouping, TRUE)) {
+      $glossary_array = array_merge($glossary_array, range(0, 9));
+    }
+    else {
+      $glossary_array[] = "0-9";
+    }
+
+    // Do we have Non Alpha Numeric grouping?
+    if (in_array('glossary_az_grouping_other', $glossary_az_grouping, TRUE)) {
+      $glossary_array[] = "#";
+    }
+
+ksm($glossary_array);
     // Generate keys from values.
     $glossary_missing = array_combine($glossary_array, $glossary_array);
 
