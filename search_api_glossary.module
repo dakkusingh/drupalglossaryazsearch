@@ -60,7 +60,7 @@ function search_api_glossary_search_api_index_items_alter(IndexInterface $index,
         $source_field_value = $field_values->getValues()[0];
 
         // Glossary process.
-        $glossary_value = search_api_glossary_glossary_getter($source_field_value);
+        $glossary_value = search_api_glossary_glossary_getter($source_field_value, $search_api_glossary_settings[$field_name]['glossary_az_grouping']);
         $target_field_id = $search_api_glossary_settings[$field_name]['glossary_field_id'];
 
         // Set the Target Glossary value.
@@ -73,34 +73,40 @@ function search_api_glossary_search_api_index_items_alter(IndexInterface $index,
 /**
  * Getter callback for title_az_glossary property.
  */
-function search_api_glossary_glossary_getter($source_value) {
+function search_api_glossary_glossary_getter($source_value, $glossary_az_grouping) {
   $first_letter = strtoupper($source_value)[0];
-  return search_api_glossary_glossary_getter_helper($first_letter, array());
+  return search_api_glossary_glossary_getter_helper($first_letter, array_values($glossary_az_grouping));
 }
 
 /**
  * Getter Helper for Alpha Numeric Keys.
  */
 function search_api_glossary_glossary_getter_helper($first_letter, $glossary_az_grouping) {
-  // @todo Enable group options.
+
   // Is it Alpha?
-  // Do we have Alpha grouping?
-  if (ctype_alpha($first_letter) && in_array('glossary_az_grouping_az', $glossary_az_grouping)) {
-    $first_letter = "A-Z";
-  }
-  // Is it a number?
-  // Do we have Numeric grouping?
-  elseif (ctype_digit($first_letter) && in_array('glossary_az_grouping_09', $glossary_az_grouping)) {
-    $first_letter = "0-9";
-  }
-  // Catch non alpha numeric.
-  // Do we have Non Alpha Numeric grouping?
-  elseif (in_array('glossary_az_grouping_other', $glossary_az_grouping)) {
-    $first_letter = "#";
+  if (ctype_alpha($first_letter)) {
+    // Do we have Alpha grouping?
+    if (in_array('glossary_az_grouping_az', $glossary_az_grouping, TRUE)) {
+      $first_letter = "A-Z";
+    }
+    return $first_letter;
   }
 
-  // All done, return the key.
-  return $first_letter;
+  // Is it a number?
+  elseif (ctype_digit($first_letter)) {
+    // Do we have Numeric grouping?
+    if (in_array('glossary_az_grouping_09', $glossary_az_grouping, TRUE)) {
+      $first_letter = "0-9";
+    }
+    return $first_letter;
+  }
+
+  // Catch non alpha numeric.
+  // Do we have Non Alpha Numeric grouping?
+  elseif (in_array('glossary_az_grouping_other', $glossary_az_grouping, TRUE)) {
+    $first_letter = "#";
+    return $first_letter;
+  }
 }
 
 /**
@@ -138,13 +144,37 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
       // Make it default and prevent changing.
       if (substr($field_name, 0, strlen('field_glossaryaz')) !== 'field_glossaryaz') {
         if (!$locked && in_array($field_type, $allowed_field_types)) {
+
           $form[$datasource_id]['fields'][$field_name]['glossary_az'] = array(
             '#type' => 'checkbox',
             '#title' => t('Enable'),
             '#default_value' => $config->get($field_name)['enabled'],
           );
 
-          // @todo Add grouping settings
+          if (array_key_exists('glossary_az_grouping', $config->get($field_name))) {
+            $glossary_az_grouping_defaults = $config->get($field_name)['glossary_az_grouping'];
+          }
+          else {
+            $glossary_az_grouping_defaults = array(
+              'glossary_az_grouping_09' => 'glossary_az_grouping_09',
+              'glossary_az_grouping_other' => 'glossary_az_grouping_other',
+            );
+          }
+
+          $form[$datasource_id]['fields'][$field_name]['glossary_az_grouping'] = array(
+            '#type' => 'checkboxes',
+            #'#title' => t('Glossary grouping'),
+            #'#description' => t('When grouping is enabled, individual values such as 1, 2, 3 will get grouped like "0-9"'),
+            '#options' => array(
+              'glossary_az_grouping_az' => 'Group Alphabetic (A-Z)',
+              'glossary_az_grouping_09' => 'Group Numeric (0-9)',
+              'glossary_az_grouping_other' => 'Group Non Alpha Numeric (#)',
+            ),
+            '#default_value' => $glossary_az_grouping_defaults,
+            '#required' => FALSE,
+            '#size' => 1,
+          );
+
           // @todo Glossary field TYPE should always be STRING.
 
           // Array to identify which header(s) to alter.
@@ -158,6 +188,7 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
   if (!empty($datasource_ids)) {
     foreach ($datasource_ids as $datasource_id_unique) {
       $form[$datasource_id_unique]['#header'][] = t('Glossary');
+      $form[$datasource_id_unique]['#header'][] = t('Glossary Grouping');
     }
   }
 
@@ -194,6 +225,7 @@ function search_api_glossary_search_api_index_fields_validate($form, FormStateIn
     if (substr($field_name, 0, strlen('field_glossaryaz')) === 'field_glossaryaz') {
       // Check if the parent field for
       // this glossary field exists and is enabled.
+
       // @todo move this to a helper function.
       $glossary_parent_field = str_replace('field_glossaryaz_' . $entity_type_clean . '_', '', $field_name);
 
@@ -256,6 +288,7 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
 
     if (isset($field_values['glossary_az']) && $field_values['glossary_az'] == 1) {
       $config_values['enabled'] = 1;
+      $config_values['glossary_az_grouping'] = $field_values['glossary_az_grouping'];
 
       // If Glossary option is enabled
       // on any of the fields, clear cache
@@ -285,5 +318,4 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
   catch (Exception $e) {
     drupal_set_message(t("Cache was not cleared, you must clear your cache manually to see the new glossary fields"));
   }
-
 }
