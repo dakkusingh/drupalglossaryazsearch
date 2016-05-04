@@ -60,7 +60,6 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
       $glossary_array[] = "#";
     }
 
-ksm($glossary_array);
     // Generate keys from values.
     $glossary_missing = array_combine($glossary_array, $glossary_array);
 
