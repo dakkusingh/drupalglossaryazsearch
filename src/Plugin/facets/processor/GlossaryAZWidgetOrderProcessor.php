@@ -34,11 +34,6 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     // order defined in the config.
     $glossary_results = array();
     foreach ($sort_options_by_weight as $sort_option_by_weight_id => $sort_option_by_weight_weight) {
-      //$newarray = array_values($glossary_results[$sort_option_by_weight_id]);
-      //$newarray = array_merge($newarray, array_values($glossary_results[$sort_option_by_weight_id]));
-      $glossary_results[$sort_option_by_weight_id] = array();
-      $glossary_results[$sort_option_by_weight_id] = array();
-      $glossary_results[$sort_option_by_weight_id] = array();
       $glossary_results[$sort_option_by_weight_id] = array();
     }
 
@@ -47,12 +42,12 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     // lets step through the results and populate
     // results into respective containers.
     foreach ($results as $result) {
-      if ($result->getRawValue() == 'All') {
-        $glossary_results['glossaryaz_sort_all'][$result->getRawValue()] = $result;
-      }
       // Is it a number? or maybe grouped number eg 0-9 (technically a string).
-      elseif ($result->getRawValue() == '0-9' || ctype_digit($result->getRawValue())) {
+      if ($result->getRawValue() == '0-9' || ctype_digit($result->getRawValue()) || is_int($result->getRawValue())) {
         $glossary_results['glossaryaz_sort_09'][$result->getRawValue()] = $result;
+      }
+      elseif ($result->getRawValue() == 'All') {
+        $glossary_results['glossaryaz_sort_all'][$result->getRawValue()] = $result;
       }
       // Is it alpha?
       elseif (ctype_alpha($result->getRawValue())) {
