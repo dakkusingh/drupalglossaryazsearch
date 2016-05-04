@@ -156,7 +156,7 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
           }
           else {
             $glossary_az_grouping_defaults = array(
-              'glossary_az_grouping_09' => 'glossary_az_grouping_09',
+              //'glossary_az_grouping_09' => 'glossary_az_grouping_09',
               'glossary_az_grouping_other' => 'glossary_az_grouping_other',
             );
           }
