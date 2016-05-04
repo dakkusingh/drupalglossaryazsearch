@@ -14,7 +14,7 @@ use Drupal\Core\Url;
  * @FacetsProcessor(
  *   id = "glossaryaz_all_items_processor",
  *   label = @Translation("All items in Glossary AZ"),
- *   description = @Translation("Option to show All items in Glossary AZ"),
+ *   description = @Translation("Option to show All items in Glossary AZ. Make sure URL handler runs before this processor (see: Advanced settings > Build Stage)"),
  *   stages = {
  *     "build" = 10
  *   }
