@@ -225,8 +225,6 @@ function search_api_glossary_search_api_index_fields_validate($form, FormStateIn
     if (substr($field_name, 0, strlen('field_glossaryaz')) === 'field_glossaryaz') {
       // Check if the parent field for
       // this glossary field exists and is enabled.
-
-      // @todo refactor this as we now have parent and glossary info saved.
       $glossary_parent_field = str_replace('field_glossaryaz_' . $entity_type_clean . '_', '', $field_name);
 
       // We dont seem to have a parent field for Glossary.
