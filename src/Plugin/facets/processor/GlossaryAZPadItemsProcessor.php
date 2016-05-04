@@ -49,7 +49,7 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
 
     // If Numeric grouping is not set, pad alpha.
     if (!in_array('glossary_az_grouping_09', $glossary_az_grouping, TRUE)) {
-      $glossary_array = array_merge($glossary_array, range(0, 9));
+      $glossary_array = array_merge($glossary_array, array_map('strval', range('0', '9')));
     }
     else {
       $glossary_array[] = "0-9";
