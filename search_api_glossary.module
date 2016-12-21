@@ -43,34 +43,6 @@ function search_api_glossary_entity_base_field_info(EntityTypeInterface $entity_
 }
 
 /**
- * Implements hook_search_api_index_items_alter().
- */
-function search_api_glossary_search_api_index_items_alter(IndexInterface $index, array &$items) {
-  // Load up config and loop though settings.
-  $config = \Drupal::config('search_api_glossary.settings');
-  $search_api_glossary_settings = $config->get();
-
-  foreach ($items as $item) {
-    $item_fields = $item->getFields();
-
-    // Loop through all fields.
-    foreach ($item_fields as $field_name => $field_values) {
-      // Only operate on genuine fields that are enabled.
-      if (array_key_exists($field_name, $search_api_glossary_settings) && $search_api_glossary_settings[$field_name]['enabled'] == 1) {
-        $source_field_value = $field_values->getValues()[0];
-
-        // Glossary process.
-        $glossary_value = search_api_glossary_glossary_getter($source_field_value, $search_api_glossary_settings[$field_name]['glossary_az_grouping']);
-        $target_field_id = $search_api_glossary_settings[$field_name]['glossary_field_id'];
-
-        // Set the Target Glossary value.
-        $item->getField($target_field_id)->addValue($glossary_value);
-      }
-    }
-  }
-}
-
-/**
  * Getter callback for title_az_glossary property.
  */
 function search_api_glossary_glossary_getter($source_value, $glossary_az_grouping) {

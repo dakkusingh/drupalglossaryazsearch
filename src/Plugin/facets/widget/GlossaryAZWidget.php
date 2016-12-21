@@ -4,10 +4,10 @@ namespace Drupal\search_api_glossary\Plugin\facets\widget;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\facets\FacetInterface;
 use Drupal\facets\Result\ResultInterface;
-use Drupal\facets\Widget\WidgetInterface;
+use Drupal\facets\Widget\WidgetPluginInterface;
+use Drupal\facets\Widget\WidgetPluginBase;
 
 /**
  * The GlossaryAZ widget.
@@ -18,9 +18,7 @@ use Drupal\facets\Widget\WidgetInterface;
  *   description = @Translation("A simple widget that shows a Glossary AZ"),
  * )
  */
-class GlossaryAZWidget implements WidgetInterface {
-
-  use StringTranslationTrait;
+class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface {
 
   /**
    * {@inheritdoc}
@@ -31,12 +29,11 @@ class GlossaryAZWidget implements WidgetInterface {
 
     $items = [];
 
-    $configuration = $facet->getWidgetConfigs();
-    $show_count = empty($configuration['show_count']) ? FALSE : (bool) $configuration['show_count'];
+    $configuration = $facet->getWidget()['config'];
     $enable_default_theme = empty($configuration['enable_default_theme']) ? FALSE : (bool) $configuration['enable_default_theme'];
 
     foreach ($results as $result) {
-      $items[] = $this->buildListItems($result, $show_count);
+      $items[] = $this->buildListItems($result);
     }
 
     $build = [
@@ -66,18 +63,15 @@ class GlossaryAZWidget implements WidgetInterface {
    *
    * @param \Drupal\facets\Result\ResultInterface $result
    *   A result item.
-   * @param bool $show_count
-   *   A boolean that's true when the numbers should be shown.
    *
    * @return array
    *   A renderable array of the result.
    */
-  protected function buildListItems(ResultInterface $result, $show_count) {
-
+  protected function buildListItems(ResultInterface $result) {
     $classes = ['facet-item', 'glossaryaz'];
     // Not sure if glossary will have children.
     // Removed chilren processing for now.
-    $items = $this->prepareLink($result, $show_count);
+    $items = $this->prepareLink($result);
 
     if ($result->isActive()) {
       $items['#attributes'] = ['class' => 'is-active'];
@@ -105,13 +99,14 @@ class GlossaryAZWidget implements WidgetInterface {
    *
    * @param \Drupal\facets\Result\ResultInterface $result
    *   A result item.
-   * @param bool $show_count
-   *   A boolean that's true when the numbers should be shown.
    *
    * @return array
    *   The item, as a renderable array.
    */
-  protected function prepareLink(ResultInterface $result, $show_count) {
+  protected function prepareLink(ResultInterface $result) {
+    $configuration = $this->getConfiguration();
+    $show_count = empty($configuration['show_count']) ? FALSE : (bool) $configuration['show_count'];
+
     $text = $result->getDisplayValue();
 
     if ($show_count) {
@@ -132,29 +127,24 @@ class GlossaryAZWidget implements WidgetInterface {
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state, $config) {
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state, FacetInterface $facet) {
 
     $form['show_count'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show count per Glossary item'),
     ];
-
-    if (!is_null($config)) {
-      $widget_configs = $config->get('widget_configs');
-      if (isset($widget_configs['show_count'])) {
-        $form['show_count']['#default_value'] = $widget_configs['show_count'];
-      }
-    }
-
     $form['enable_default_theme'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use default Glossary AZ Theme'),
     ];
 
+    $config = $facet->getWidget()['config'];
     if (!is_null($config)) {
-      $widget_configs = $config->get('widget_configs');
-      if (isset($widget_configs['enable_default_theme'])) {
-        $form['enable_default_theme']['#default_value'] = $widget_configs['enable_default_theme'];
+      if (isset($config['show_count'])) {
+        $form['show_count']['#default_value'] = $config['show_count'];
+      }
+      if (isset($config['enable_default_theme'])) {
+        $form['enable_default_theme']['#default_value'] = $config['enable_default_theme'];
       }
     }
 

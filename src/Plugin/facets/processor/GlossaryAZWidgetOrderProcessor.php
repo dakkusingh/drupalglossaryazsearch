@@ -2,10 +2,11 @@
 
 namespace Drupal\search_api_glossary\Plugin\facets\processor;
 
-use Drupal\facets\Processor\WidgetOrderPluginBase;
-use Drupal\facets\Processor\WidgetOrderProcessorInterface;
+use Drupal\facets\Processor\SortProcessorPluginBase;
+use Drupal\facets\Processor\SortProcessorInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\facets\FacetInterface;
+use Drupal\facets\Result\Result;
 
 /**
  * A processor that orders the results by display value.
@@ -15,19 +16,58 @@ use Drupal\facets\FacetInterface;
  *   label = @Translation("Sort by Glossary AZ"),
  *   description = @Translation("Sort order for Glossary AZ items."),
  *   stages = {
- *     "build" = 100
+ *     "sort" = 100
  *   }
  * )
  */
-class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements WidgetOrderProcessorInterface {
+class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements SortProcessorInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function sortResults(array $results, $order = '') {
+  public function sortResults(Result $a, Result $b) {
+    $group_a = $this->getResultGroup($a);
+    $group_b = $this->getResultGroup($b);
+    if ($group_a == $group_b) {
+      // Apply natural sorting within single group.
+      return strnatcasecmp($a->getRawValue(), $b->getRawValue());
+    }
+    else {
+      // Get the custom sort order from config.
+      $sort_options_by_weight = $this->sortConfigurationWeight($this->getConfiguration()['sort']);
+      return $sort_options_by_weight[$group_a] < $sort_options_by_weight[$group_b] ? -1 : 1;
+    }
+  }
 
+  /**
+   * Returns glossary result group.
+   */
+  private function getResultGroup(Result $result) {
+    // Is it a number? or maybe grouped number eg 0-9 (technically a string).
+    if ($result->getRawValue() == '0-9' || ctype_digit($result->getRawValue()) || is_int($result->getRawValue())) {
+      $group = 'glossaryaz_sort_09';
+    }
+    elseif ($result->getRawValue() == 'All') {
+      $group = 'glossaryaz_sort_all';
+    }
+    // Is it alpha?
+    elseif (ctype_alpha($result->getRawValue())) {
+      $group = 'glossaryaz_sort_az';
+    }
+    // Non alpha numeric.
+    else {
+      $group = 'glossaryaz_sort_other';
+    }
+
+    return $group;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function build(FacetInterface $facet, array $results) {
     // Get the custom sort order from config.
-    $sort_options_by_weight = $this->sortConfigurationWeight($order);
+    $sort_options_by_weight = $this->sortConfigurationWeight($this->getConfiguration()['sort']);
 
     // Initialise an empty array and populate
     // it with options in the same order as the sort
@@ -66,7 +106,9 @@ class GlossaryAZWidgetOrderProcessor extends WidgetOrderPluginBase implements Wi
     // Flatten the array to same structure as $results.
     $glossary_results_sorted = array();
     foreach ($glossary_results as $glossary_result) {
-      $glossary_results_sorted = array_merge($glossary_results_sorted, array_values($glossary_result));
+      if ($glossary_result) {
+        $glossary_results_sorted = array_merge($glossary_results_sorted, $glossary_result);
+      }
     }
 
     // And its done.
