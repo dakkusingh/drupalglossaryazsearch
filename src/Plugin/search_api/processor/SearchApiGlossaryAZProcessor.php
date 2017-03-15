@@ -67,7 +67,7 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
 
       // Loop through all fields.
       foreach ($item_fields as $field_name => $field_values) {
-        if (array_key_exists($field_name, $search_api_glossary_settings) && $search_api_glossary_settings[$field_name]['enabled'] == 1) {
+        if (array_key_exists($field_name, $search_api_glossary_settings) && $search_api_glossary_settings[$field_name]['enabled'] == 1 && !empty($field_values->getValues())) {
           $source_field_value = $field_values->getValues()[0];
 
           // Glossary process.

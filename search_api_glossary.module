@@ -46,7 +46,7 @@ function search_api_glossary_entity_base_field_info(EntityTypeInterface $entity_
  * Getter callback for title_az_glossary property.
  */
 function search_api_glossary_glossary_getter($source_value, $glossary_az_grouping) {
-  $first_letter = strtoupper($source_value)[0];
+  $first_letter = strtoupper(substr(trim($source_value), 0, 1));
   return search_api_glossary_glossary_getter_helper($first_letter, array_values($glossary_az_grouping));
 }
 

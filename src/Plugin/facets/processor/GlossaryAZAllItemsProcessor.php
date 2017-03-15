@@ -37,13 +37,9 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
     $show_all_item->setCount($show_all_item_count);
 
     // Deal with the ALL Items path.
-    $path = $facet->getFacetSource()->getPath();
-    if (substr($path, 0, 1) !== '/') {
-      $path = '/' . $path;
-    }
+    $link = $facet->getFacetSource()->getPath();
 
     // Set the path.
-    $link = Url::fromUserInput($path);
     $link->setAbsolute();
     $show_all_item->setUrl($link);
 
