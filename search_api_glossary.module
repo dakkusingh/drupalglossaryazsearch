@@ -10,48 +10,16 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\search_api\IndexInterface;
 
 /**
- * Implements hook_entity_base_field_info().
- */
-function search_api_glossary_entity_base_field_info(EntityTypeInterface $entity_type) {
-  // Load up config and loop though settings.
-  $config = \Drupal::config('search_api_glossary.settings');
-  $search_api_glossary_settings = $config->get();
-
-  if (!empty($search_api_glossary_settings)) {
-    // Loop through the saved config from.
-    // Search API field settings form.
-    foreach ($search_api_glossary_settings as $key => $value) {
-
-      // Create the fields.
-      if ($entity_type->id() == $value['entity_type'] && $value['enabled'] == 1) {
-        $fields = array();
-        $fields[$value['glossary_field_id']] = BaseFieldDefinition::create('string')
-          ->setLabel(t($value['glossary_field_name']))
-          ->setDescription(t($value['glossary_field_desc']))
-          ->setTranslatable(FALSE)
-          ->setRevisionable(FALSE)
-          ->setSetting('max_length', 3)
-          ->setReadOnly(TRUE)
-          ->setComputed(TRUE)
-          ->setDefaultValue('');
-
-        return $fields;
-      }
-    }
-  }
-
-}
-
-/**
  * Add search_api_glossary settings to Search API Index configuration.
  *
  * Implements hook_form_FORM_ID_alter()
  */
 function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStateInterface $form_state) {
+  // TODO Cleanup this as per Drupal standards.
   $config = \Drupal::config('search_api_glossary.settings');
   $entity = $form_state->getFormObject()->getEntity();
 
-  // @todo Check if there are any limitations.
+  // TODO Check if there are any limitations.
   // If not, maybe expand this in future.
   $allowed_field_types = array(
     'integer',
@@ -64,7 +32,6 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
 
     foreach ($fields as $field) {
       $field_settings_array = $field->getSettings();
-
       $datasource_id = $field_settings_array['datasource_id'];
       $datasource_id_clean = str_replace('entity:', '', $datasource_id);
       $field_name = $field_settings_array['property_path'];
@@ -108,7 +75,7 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
             '#size' => 1,
           );
 
-          // @todo Glossary field TYPE should always be STRING.
+          // TODO Glossary field TYPE should always be STRING.
 
           // Array to identify which header(s) to alter.
           $datasource_ids[$datasource_id] = $datasource_id;
@@ -150,15 +117,13 @@ function search_api_glossary_search_api_index_fields_validate($form, FormStateIn
   // throw an error.
 
   foreach ($fields as $field_name => $field_values) {
-    $entity_type_clean = str_replace('entity:', '', $field_settings_array[$field_name]['datasource_id']);
-
     // Identify glossary fields and check parents.
     // This case would occur if Glossary field is added
     // but parent is removed or disabled.
     if (substr($field_name, 0, strlen('field_glossaryaz')) === 'field_glossaryaz') {
       // Check if the parent field for
       // this glossary field exists and is enabled.
-      $glossary_parent_field = str_replace('field_glossaryaz_' . $entity_type_clean . '_', '', $field_name);
+      $glossary_parent_field = str_replace('field_glossaryaz_', '', $field_name);
 
       // We dont seem to have a parent field for Glossary.
       if (!array_key_exists($glossary_parent_field, $fields)) {
@@ -171,6 +136,7 @@ function search_api_glossary_search_api_index_fields_validate($form, FormStateIn
           )
         ));
       }
+
       // We have parent for glossary and
       // glossary option is disabled.
       elseif ($fields[$glossary_parent_field]['glossary_az'] == 0) {
@@ -198,52 +164,32 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
 
   $entity = $form_state->getFormObject()->getEntity();
   $field_settings_array = $entity->get('field_settings');
-
+  // TODO Cleanup this as per Drupal standards.
   \Drupal::configFactory()->reset('search_api_glossary.settings');
   $config = \Drupal::configFactory()->getEditable('search_api_glossary.settings');
 
-  //$clear_cache = FALSE;
-
   foreach ($fields as $field_name => $field_values) {
-    $entity_type_clean = str_replace('entity:', '', $field_settings_array[$field_name]['datasource_id']);
-    $glossary_field_id = 'field_glossaryaz_' . $entity_type_clean . '_' . $field_name;
+    $glossary_field_id = 'field_glossaryaz_' . $field_name;
 
     $config_values = array(
       'enabled' => 0,
-      'entity_type' => $entity_type_clean,
       'field_type' => $field_values['type'],
       'field_name' => $field_name,
       'label' => $field_settings_array[$field_name]['label'],
       'glossary_field_id' => $glossary_field_id,
-      'glossary_field_name' => $field_settings_array[$field_name]['label'] . ' Glossary',
+      'glossary_field_name' => 'AZ Glossary - ' . $field_settings_array[$field_name]['label'],
       'glossary_field_desc' => 'Glossary field for ' . $field_settings_array[$field_name]['label'] . '.',
     );
 
     if (isset($field_values['glossary_az']) && $field_values['glossary_az'] == 1) {
       $config_values['enabled'] = 1;
       $config_values['glossary_az_grouping'] = $field_values['glossary_az_grouping'];
-
-      // If Glossary option is enabled
-      // on any of the fields, clear cache
-      // So these fields can be added in
-      // hook_entity_base_field_info().
-      // @todo Only clear caches if new
-      // options are selected. Avoid repeat flushing.
-      //$clear_cache = TRUE;
-
-      // Set the variables.
-      $config->set($field_name, $config_values)->save();
-      $config->set($glossary_field_id, $config_values)->save();
     }
+
+    // Set the variables.
+    $config->set($field_name, $config_values)->save();
   }
 
-  // Clear caches.
-  try {
-    // @todo Make this lighter?
-    drupal_flush_all_caches();
-    drupal_set_message(t("Glossary fields have been created for the chosen fields. These newly created Glossary fields can now be added by clicking on ADD FIELDS button."));
-  }
-  catch (Exception $e) {
-    drupal_set_message(t("Cache was not cleared, you must clear your cache manually to see the new glossary fields"));
-  }
+  drupal_set_message(t("Glossary fields have been created for the chosen fields. These newly created Glossary fields can now be added by clicking on ADD FIELDS button."));
+
 }

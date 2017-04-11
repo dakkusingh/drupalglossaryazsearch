@@ -9,7 +9,7 @@ use Drupal\search_api\Processor\ProcessorProperty;
 use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
 
 /**
- * Adds the item's URL to the indexed data.
+ * Adds the item's AZ to the indexed data.
  *
  * @SearchApiProcessor(
  *   id = "SearchApiGlossaryAZProcessor",
@@ -28,26 +28,25 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
    * {@inheritdoc}
    */
   public function getPropertyDefinitions(DatasourceInterface $datasource = NULL) {
-    $properties = array();
+    $properties = [];
 
-    if ($datasource && $datasource->getEntityTypeId() == 'node') {
-      // Load up config and loop though settings.
-      if ($config = \Drupal::config('search_api_glossary.settings')) {
-        $search_api_glossary_settings = $config->get();
-        if (!empty($search_api_glossary_settings)) {
-          // Loop through the saved config from.
-          // Search API field settings form.
-          foreach ($search_api_glossary_settings as $value) {
-            // Create the fields.
-            if ($datasource->getEntityTypeId() == $value['entity_type'] && $value['enabled'] == 1) {
-              $definition = array(
-                'label' => $value['glossary_field_name'],
-                'description' => $value['glossary_field_desc'],
-                'type' => 'string',
-                'processor_id' => $this->getPluginId(),
-              );
-              $properties[$value['glossary_field_id']] = new ProcessorProperty($definition);
-            }
+    if (!$datasource) {
+      $config = \Drupal::config('search_api_glossary.settings');
+      $search_api_glossary_settings = $config->get();
+
+      if (!empty($search_api_glossary_settings)) {
+        // Loop through the saved config from.
+        // Search API field settings form.
+        foreach ($search_api_glossary_settings as $value) {
+          // Create the fields.
+          if ($value['enabled'] == 1) {
+            $definition = [
+              'label' => $this->t($value['glossary_field_name']),
+              'description' => $this->t($value['glossary_field_desc']),
+              'type' => 'string',
+              'processor_id' => $this->getPluginId(),
+            ];
+            $properties[$value['glossary_field_id']] = new ProcessorProperty($definition);
           }
         }
       }
@@ -72,7 +71,7 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
           $source_field_value = $field_values->getValues()[0];
 
           // Glossary process.
-          $glossary_value = SearchApiGlossaryAZHelper::glossaryGetterHelper($source_field_value, $search_api_glossary_settings[$field_name]['glossary_az_grouping']);
+          $glossary_value = SearchApiGlossaryAZHelper::glossaryGetter($source_field_value, $search_api_glossary_settings[$field_name]['glossary_az_grouping']);
           $target_field_id = $search_api_glossary_settings[$field_name]['glossary_field_id'];
 
           // Set the Target Glossary value.
