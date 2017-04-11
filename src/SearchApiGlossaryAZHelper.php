@@ -26,7 +26,6 @@ class SearchApiGlossaryAZHelper {
    * Getter Helper for Alpha Numeric Keys.
    */
   public function glossaryGetterHelper($first_letter, $glossary_az_grouping) {
-    //ksm(array($first_letter, $glossary_az_grouping));
     // Is it Alpha?
     if (ctype_alpha($first_letter)) {
       // Do we have Alpha grouping?
