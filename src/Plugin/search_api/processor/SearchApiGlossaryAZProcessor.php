@@ -6,6 +6,7 @@ use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
+use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
 
 /**
  * Adds the item's URL to the indexed data.
@@ -71,7 +72,7 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
           $source_field_value = $field_values->getValues()[0];
 
           // Glossary process.
-          $glossary_value = search_api_glossary_glossary_getter($source_field_value, $search_api_glossary_settings[$field_name]['glossary_az_grouping']);
+          $glossary_value = SearchApiGlossaryAZHelper::glossaryGetterHelper($source_field_value, $search_api_glossary_settings[$field_name]['glossary_az_grouping']);
           $target_field_id = $search_api_glossary_settings[$field_name]['glossary_field_id'];
 
           // Set the Target Glossary value.
