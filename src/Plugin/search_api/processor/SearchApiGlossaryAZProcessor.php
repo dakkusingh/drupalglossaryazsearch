@@ -100,7 +100,7 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
    */
   public function defaultConfiguration() {
     return [
-      'weight' => 0,
+      'field_enabled' => 0,
       'grouping_defaults' => [
         'grouping_other' => 'grouping_other',
       ],
@@ -112,8 +112,6 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $fields = $this->index->getFields();
-    $field_options = [];
-    $default_fields = [];
 
     $form['glossarytable'] = [
       '#type' => 'table',
@@ -121,24 +119,32 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
         $this->t('Field'),
         $this->t('Glossary Grouping')
       ],
-      '#tableselect' => TRUE,
     ];
-
-    if (isset($this->configuration['fields'])) {
-      $default_fields = $this->configuration['fields'];
-    }
 
     foreach ($fields as $name => $field) {
       // Filter out hidden fields
       // and fields that do not match
       // our required criteria.
-      if ($field->isHidden() != TRUE && $this->testType($field->getType())) {
+      if ($field->isHidden() == FALSE && $this->testType($field->getType())) {
 
-        //if (!isset($this->configuration['fields']) && $this->testField($name, $field)) {
-          //$default_fields[] = $name;
-        //}
+        // Check the config if the field has been enabled?
+        $field_enabled = $this->configuration['field_enabled'];
+        if (isset($this->configuration['glossarytable'][$name]['glossary']) &&
+            $this->configuration['glossarytable'][$name]['glossary'] == 1) {
+          $field_enabled = $this->configuration['glossarytable'][$name]['glossary'];
+        }
 
-        $form['glossarytable'][$name]['label']['#plain_text'] = Html::escape($field->getPrefixedLabel());
+        // Check the config if the field has been enabled?
+        $field_gouping = $this->configuration['grouping_defaults'];
+        if (isset($this->configuration['glossarytable'][$name]['grouping'])) {
+          $field_gouping = $this->configuration['glossarytable'][$name]['grouping'];
+        }
+
+        $form['glossarytable'][$name]['glossary'] = [
+          '#type' => 'checkbox',
+          '#title' => Html::escape($field->getPrefixedLabel()),
+          '#default_value' => $field_enabled,
+        ];
 
         // Finally add the glossary grouping options per field.
         $form['glossarytable'][$name]['grouping'] = [
@@ -149,11 +155,12 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
             'grouping_09' => 'Group Numeric (0-9)',
             'grouping_other' => 'Group Non Alpha Numeric (#)',
           ],
-          '#default_value' => $this->configuration['grouping_defaults'], // TODO Check this.
+          // TODO There is a suspected bug where these dot always get saved
+          '#default_value' => $field_gouping,
           '#required' => FALSE,
           '#states' => [
             'visible' => [
-                [':input[name="processors[SearchApiGlossaryAZProcessor][settings][glossarytable][' . $name . ']"]' => ['checked' => TRUE]],
+                [':input[name="processors[SearchApiGlossaryAZProcessor][settings][glossarytable][' . $name . '][glossary]"]' => ['checked' => TRUE]],
             ],
           ],
         ];
@@ -168,7 +175,7 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    //$this->setConfiguration($form_state->getValues());
+    $this->setConfiguration($form_state->getValues('glossarytable'));
   }
 
   /**
