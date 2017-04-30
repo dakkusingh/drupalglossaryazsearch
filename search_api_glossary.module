@@ -16,7 +16,7 @@ use Drupal\search_api\IndexInterface;
  */
 function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStateInterface $form_state) {
   // TODO Cleanup this as per Drupal standards.
-  $config = \Drupal::config('search_api_glossary.settings');
+  /*$config = \Drupal::config('search_api_glossary.settings');
   $entity = $form_state->getFormObject()->getEntity();
 
   // TODO Check if there are any limitations.
@@ -97,14 +97,14 @@ function search_api_glossary_form_search_api_index_fields_alter(&$form, FormStat
 
   // Add a custom submit handler to save the
   // array of types back to the config file.
-  $form['actions']['submit']['#submit'][] = 'search_api_glossary_search_api_index_fields_submit';
+  $form['actions']['submit']['#submit'][] = 'search_api_glossary_search_api_index_fields_submit';*/
 }
 
 /**
  * Validate search_api_glossary settings for Search API Index configuration.
  */
 function search_api_glossary_search_api_index_fields_validate($form, FormStateInterface $form_state) {
-  $values = $form_state->getValues();
+  /*$values = $form_state->getValues();
   $fields = $values['fields'];
 
   $entity = $form_state->getFormObject()->getEntity();
@@ -152,14 +152,14 @@ function search_api_glossary_search_api_index_fields_validate($form, FormStateIn
       }
 
     }
-  }
+  }*/
 }
 
 /**
  * Save search_api_glossary settings for Search API Index configuration.
  */
 function search_api_glossary_search_api_index_fields_submit($form, FormStateInterface $form_state) {
-  $values = $form_state->getValues();
+  /*$values = $form_state->getValues();
   $fields = $values['fields'];
 
   $entity = $form_state->getFormObject()->getEntity();
@@ -191,5 +191,5 @@ function search_api_glossary_search_api_index_fields_submit($form, FormStateInte
   }
 
   drupal_set_message(t("Glossary fields have been created for the chosen fields. These newly created Glossary fields can now be added by clicking on ADD FIELDS button."));
-
+  */
 }
