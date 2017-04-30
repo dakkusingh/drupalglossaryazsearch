@@ -9,6 +9,7 @@ use Drupal\search_api\Utility\DataTypeHelperInterface;
 use Drupal\search_api\Utility\Utility;
 use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\Component\Utility\Html;
+use Drupal\search_api\Processor\ProcessorProperty;
 use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
 
 /**
@@ -42,26 +43,30 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
     $properties = [];
 
     if (!$datasource) {
-      // TODO This logic would now be based on new config
-      /*$config = \Drupal::config('search_api_glossary.settings');
-      $search_api_glossary_settings = $config->get();
+      // Get glossary fields.
+      $glossary_fields = $this->configuration['glossarytable'];
 
-      if (!empty($search_api_glossary_settings)) {
-        // Loop through the saved config from.
-        // Search API field settings form.
-        foreach ($search_api_glossary_settings as $value) {
-          // Create the fields.
-          if ($value['enabled'] == 1) {
-            $definition = [
-              'label' => $this->t($value['glossary_field_name']),
-              'description' => $this->t($value['glossary_field_desc']),
-              'type' => 'string',
-              'processor_id' => $this->getPluginId(),
-            ];
-            $properties[$value['glossary_field_id']] = new ProcessorProperty($definition);
-          }
+      // Get original fields from index.
+      $fields = $this->index->getFields();
+
+      // Loop through the saved config from
+      // Search API field settings form.
+      foreach($glossary_fields as $name => $glossary_field) {
+        // If glossary is enabled on this field
+        if ((isset($glossary_field['glossary']) && $glossary_field['glossary'] == 1) &&
+            isset($fields[$name])) {
+          $definition = [
+            'label' => $this->t('Glossary AZ - ' . Html::escape($fields[$name]->getPrefixedLabel())),
+            'description' => $this->t('Glossary AZ - ' . Html::escape($fields[$name]->getPrefixedLabel())),
+            'type' => $fields[$name]->getType(),
+            'processor_id' => $this->getPluginId(),
+            // This will be a hidden field,
+            // not something a user can add/remove manually.
+            'hidden' => TRUE,
+          ];
+          $properties['glossaryaz_' . $name] = new ProcessorProperty($definition);
         }
-      }*/
+      }
     }
 
     return $properties;
@@ -129,15 +134,17 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
 
         // Check the config if the field has been enabled?
         $field_enabled = $this->configuration['field_enabled'];
-        if (isset($this->configuration['glossarytable'][$name]['glossary']) &&
-            $this->configuration['glossarytable'][$name]['glossary'] == 1) {
-          $field_enabled = $this->configuration['glossarytable'][$name]['glossary'];
+        $glossary_fields = $this->configuration['glossarytable'];
+        $this_glossary_field = $glossary_fields[$name]['glossary'];
+        if (isset($this_glossary_field) && $this_glossary_field == 1) {
+          $field_enabled = $this_glossary_field;
         }
 
         // Check the config if the field has been enabled?
         $field_gouping = $this->configuration['grouping_defaults'];
-        if (isset($this->configuration['glossarytable'][$name]['grouping'])) {
-          $field_gouping = $this->configuration['glossarytable'][$name]['grouping'];
+        $this_glossary_group = $glossary_fields[$name]['grouping'];
+        if (isset($this_glossary_group)) {
+          $field_gouping = $this_glossary_group;
         }
 
         $form['glossarytable'][$name]['glossary'] = [
@@ -182,10 +189,25 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
    * {@inheritdoc}
    */
   public function preIndexSave() {
-    // Automatically add field to index if processor is enabled.
-    //$field = $this->ensureField(NULL, $this->target_field_id, 'integer');
-    // Hide the field.
-    //$field->setHidden();
+    // Get glossary fields.
+    $glossary_fields = $this->configuration['glossarytable'];
+
+    // Get original fields from index.
+    $fields = $this->index->getFields();
+
+    // Loop through the saved config from
+    // Search API field settings form.
+    foreach($glossary_fields as $name => $glossary_field) {
+      // If glossary is enabled on this field
+      if ((isset($glossary_field['glossary']) && $glossary_field['glossary'] == 1) &&
+          isset($fields[$name])) {
+        // Automatically add field to index if processor is enabled.
+        $field = $this->ensureField(NULL, 'glossaryaz_' . $name, $fields[$name]->getType());
+
+        // Hide the field.
+        $field->setHidden();
+      }
+    }
   }
 
   /**
