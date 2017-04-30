@@ -2,10 +2,13 @@
 
 namespace Drupal\search_api_glossary\Plugin\search_api\processor;
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\search_api\Item\FieldInterface;
+use Drupal\search_api\Processor\FieldsProcessorPluginBase;
+use Drupal\search_api\Utility\DataTypeHelperInterface;
+use Drupal\search_api\Utility\Utility;
 use Drupal\search_api\Datasource\DatasourceInterface;
-use Drupal\search_api\Item\ItemInterface;
-use Drupal\search_api\Processor\ProcessorPluginBase;
-use Drupal\search_api\Processor\ProcessorProperty;
+use Drupal\Component\Utility\Html;
 use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
 
 /**
@@ -17,12 +20,20 @@ use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
  *   description = @Translation("Exposes glossary computed fields to Search API."),
  *   stages = {
  *     "add_properties" = 0,
+ *     "pre_index_save" = 0,
  *   },
- *   locked = true,
- *   hidden = true,
+ *   locked = false,
+ *   hidden = false,
  * )
  */
-class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
+class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
+
+  /**
+   * The data type helper.
+   *
+   * @var \Drupal\search_api\Utility\DataTypeHelperInterface|null
+   */
+  protected $dataTypeHelper;
 
   /**
    * {@inheritdoc}
@@ -31,7 +42,8 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
     $properties = [];
 
     if (!$datasource) {
-      $config = \Drupal::config('search_api_glossary.settings');
+      // TODO This logic would now be based on new config
+      /*$config = \Drupal::config('search_api_glossary.settings');
       $search_api_glossary_settings = $config->get();
 
       if (!empty($search_api_glossary_settings)) {
@@ -49,7 +61,7 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
             $properties[$value['glossary_field_id']] = new ProcessorProperty($definition);
           }
         }
-      }
+      }*/
     }
 
     return $properties;
@@ -58,7 +70,7 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function addFieldValues(ItemInterface $item) {
+  /*public function addFieldValues(ItemInterface $item) {
     // Load up config and loop though settings.
     if ($config = \Drupal::config('search_api_glossary.settings')) {
       $search_api_glossary_settings = $config->get();
@@ -81,6 +93,100 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase {
         }
       }
     }
+  }*/
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'weight' => 0,
+      'grouping_defaults' => [
+        'grouping_other' => 'grouping_other',
+      ],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $fields = $this->index->getFields();
+    $field_options = [];
+    $default_fields = [];
+
+    $form['glossarytable'] = [
+      '#type' => 'table',
+      '#header' => [
+        $this->t('Field'),
+        $this->t('Glossary Grouping')
+      ],
+      '#tableselect' => TRUE,
+    ];
+
+    if (isset($this->configuration['fields'])) {
+      $default_fields = $this->configuration['fields'];
+    }
+
+    foreach ($fields as $name => $field) {
+      // Filter out hidden fields
+      // and fields that do not match
+      // our required criteria.
+      if ($field->isHidden() != TRUE && $this->testType($field->getType())) {
+
+        //if (!isset($this->configuration['fields']) && $this->testField($name, $field)) {
+          //$default_fields[] = $name;
+        //}
+
+        $form['glossarytable'][$name]['label']['#plain_text'] = Html::escape($field->getPrefixedLabel());
+
+        // Finally add the glossary grouping options per field.
+        $form['glossarytable'][$name]['grouping'] = [
+          '#type' => 'checkboxes',
+          '#description' => t('When grouping is enabled, individual values such as 1, 2, 3 will get grouped like "0-9"'),
+          '#options' => [
+            'grouping_az' => 'Group Alphabetic (A-Z)',
+            'grouping_09' => 'Group Numeric (0-9)',
+            'grouping_other' => 'Group Non Alpha Numeric (#)',
+          ],
+          '#default_value' => $this->configuration['grouping_defaults'], // TODO Check this.
+          '#required' => FALSE,
+          '#states' => [
+            'visible' => [
+                [':input[name="processors[SearchApiGlossaryAZProcessor][settings][glossarytable][' . $name . ']"]' => ['checked' => TRUE]],
+            ],
+          ],
+        ];
+
+      }
+    }
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    //$this->setConfiguration($form_state->getValues());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preIndexSave() {
+    // Automatically add field to index if processor is enabled.
+    //$field = $this->ensureField(NULL, $this->target_field_id, 'integer');
+    // Hide the field.
+    //$field->setHidden();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function testType($type) {
+    return $this->getDataTypeHelper()
+      ->isTextType($type, ['text', 'string', 'integer']);
   }
 
 }
