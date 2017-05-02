@@ -18,7 +18,7 @@ use Drupal\search_api_glossary\GlossaryHelper;
  * Adds the item's AZ to the indexed data.
  *
  * @SearchApiProcessor(
- *   id = "Glossary",
+ *   id = "glossary",
  *   label = @Translation("Search API glossary processor"),
  *   description = @Translation("Exposes glossary computed fields to Search API."),
  *   stages = {
