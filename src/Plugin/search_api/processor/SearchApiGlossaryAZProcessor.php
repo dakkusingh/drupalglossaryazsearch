@@ -2,14 +2,16 @@
 
 namespace Drupal\search_api_glossary\Plugin\search_api\processor;
 
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\search_api\Item\FieldInterface;
-use Drupal\search_api\Processor\FieldsProcessorPluginBase;
-use Drupal\search_api\Utility\DataTypeHelperInterface;
-use Drupal\search_api\Utility\Utility;
 use Drupal\search_api\Datasource\DatasourceInterface;
-use Drupal\Component\Utility\Html;
+use Drupal\search_api\Item\ItemInterface;
+use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
+use Drupal\search_api\Utility\Utility;
+use Drupal\Core\Plugin\PluginFormInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\search_api\IndexInterface;
+use Drupal\search_api\Plugin\PluginFormTrait;
+use Drupal\Component\Utility\Html;
 use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
 
 /**
@@ -22,19 +24,17 @@ use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
  *   stages = {
  *     "add_properties" = 0,
  *     "pre_index_save" = 0,
+ *     "preprocess_index" = -20,
  *   },
  *   locked = false,
  *   hidden = false,
  * )
  */
-class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
+class SearchApiGlossaryAZProcessor extends ProcessorPluginBase implements PluginFormInterface {
 
-  /**
-   * The data type helper.
-   *
-   * @var \Drupal\search_api\Utility\DataTypeHelperInterface|null
-   */
-  protected $dataTypeHelper;
+  use PluginFormTrait;
+
+  protected $target_field_prefix = 'glossaryaz_';
 
   /**
    * {@inheritdoc}
@@ -64,7 +64,8 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
             // not something a user can add/remove manually.
             'hidden' => TRUE,
           ];
-          $properties['glossaryaz_' . $name] = new ProcessorProperty($definition);
+          $new_field_name = $this->makeFieldName($name);
+          $properties[$new_field_name] = new ProcessorProperty($definition);
         }
       }
     }
@@ -75,30 +76,45 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
   /**
    * {@inheritdoc}
    */
-  /*public function addFieldValues(ItemInterface $item) {
-    // Load up config and loop though settings.
-    if ($config = \Drupal::config('search_api_glossary.settings')) {
-      $search_api_glossary_settings = $config->get();
+  public function addFieldValues(ItemInterface $item) {
+    $item_fields = $item->getFields();
 
-      $item_fields = $item->getFields();
+    // Get glossary fields.
+    $glossary_fields_conf = $this->configuration['glossarytable'];
 
-      // Loop through all fields.
-      foreach ($item_fields as $field_name => $field_values) {
-        if (array_key_exists($field_name, $search_api_glossary_settings) && $search_api_glossary_settings[$field_name]['enabled'] == 1 && !empty($field_values->getValues())) {
-          $source_field_value = $field_values->getValues()[0];
+    // Loop through all fields.
+    foreach ($item_fields as $name => $field) {
+      // Filter out hidden fields
+      // and fields that do not match
+      // our required criteria.
+      // Finally check if this field has glossary enabled.
+      if ($field->isHidden() == FALSE && $this->testType($field->getType()) && $this->checkFieldName($name) == FALSE) {
+        $glossary_field_conf = $glossary_fields_conf[$name]['glossary'];
 
-          // Glossary process.
-          $glossary_value = SearchApiGlossaryAZHelper::glossaryGetter($source_field_value, $search_api_glossary_settings[$field_name]['glossary_az_grouping']);
-          $target_field_id = $search_api_glossary_settings[$field_name]['glossary_field_id'];
+        // Check if source field exists
+        // and if glossary is enabled on this field.
+        if (isset($glossary_field_conf) && $glossary_field_conf == 1) {
+          // Get the Parent field value.
+          $source_field_value = $field->getValues()[0];
+
+          // Get target field name.
+          $glossary_field_name = $this->makeFieldName($name);
+
+          // Glossary value.
+          $glossary_value = SearchApiGlossaryAZHelper::glossaryGetter($source_field_value, $glossary_fields_conf['grouping']);
+
+          // Get target field.
+          $glossary_field  = $item_fields[$glossary_field_name];
 
           // Set the Target Glossary value.
-          if (empty($item->getField($target_field_id)->getValues())) {
-            $item->getField($target_field_id)->addValue($glossary_value);
+          if (empty($glossary_field->getValues())) {
+            $glossary_field->addValue($glossary_value);
           }
         }
       }
     }
-  }*/
+
+  }
 
   /**
    * {@inheritdoc}
@@ -130,8 +146,8 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
       // Filter out hidden fields
       // and fields that do not match
       // our required criteria.
-      if ($field->isHidden() == FALSE && $this->testType($field->getType())) {
-
+      if ($field->isHidden() == FALSE && $this->testType($field->getType()) &&
+          $this->checkFieldName($name) == FALSE) {
         // Check the config if the field has been enabled?
         $field_enabled = $this->configuration['field_enabled'];
         $glossary_fields = $this->configuration['glossarytable'];
@@ -202,7 +218,8 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
       if ((isset($glossary_field['glossary']) && $glossary_field['glossary'] == 1) &&
           isset($fields[$name])) {
         // Automatically add field to index if processor is enabled.
-        $field = $this->ensureField(NULL, 'glossaryaz_' . $name, $fields[$name]->getType());
+        $new_field_name = $this->makeFieldName($name);
+        $field = $this->ensureField(NULL, $new_field_name, $fields[$name]->getType());
 
         // Hide the field.
         $field->setHidden();
@@ -218,4 +235,38 @@ class SearchApiGlossaryAZProcessor extends FieldsProcessorPluginBase {
       ->isTextType($type, ['text', 'string', 'integer']);
   }
 
+  /**
+   * Retrieves the data type helper.
+   *
+   * @return \Drupal\search_api\Utility\DataTypeHelperInterface
+   *   The data type helper.
+   */
+  public function getDataTypeHelper() {
+    return $this->dataTypeHelper ?: \Drupal::service('search_api.data_type_helper');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function makeFieldName($name) {
+    return $this->target_field_prefix . $name;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getFieldName($name) {
+    return str_replace($this->target_field_prefix, '', $name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function checkFieldName($name) {
+    if (substr($name, 0, strlen($this->target_field_prefix)) === $this->target_field_prefix) {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
 }
