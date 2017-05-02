@@ -12,13 +12,13 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Plugin\PluginFormTrait;
 use Drupal\Component\Utility\Html;
-use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
+use Drupal\search_api_glossary\GlossaryHelper;
 
 /**
  * Adds the item's AZ to the indexed data.
  *
  * @SearchApiProcessor(
- *   id = "SearchApiGlossaryAZProcessor",
+ *   id = "Glossary",
  *   label = @Translation("Search API glossary processor"),
  *   description = @Translation("Exposes glossary computed fields to Search API."),
  *   stages = {
@@ -30,7 +30,7 @@ use Drupal\search_api_glossary\SearchApiGlossaryAZHelper;
  *   hidden = false,
  * )
  */
-class SearchApiGlossaryAZProcessor extends ProcessorPluginBase implements PluginFormInterface {
+class Glossary extends ProcessorPluginBase implements PluginFormInterface {
 
   use PluginFormTrait;
 
@@ -101,7 +101,7 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase implements Plugin
           $glossary_field_name = $this->makeFieldName($name);
 
           // Glossary value.
-          $glossary_value = SearchApiGlossaryAZHelper::glossaryGetter($source_field_value, $glossary_fields_conf['grouping']);
+          $glossary_value = GlossaryHelper::glossaryGetter($source_field_value, $glossary_fields_conf['grouping']);
 
           // Get target field.
           $glossary_field  = $item_fields[$glossary_field_name];
@@ -183,7 +183,7 @@ class SearchApiGlossaryAZProcessor extends ProcessorPluginBase implements Plugin
           '#required' => FALSE,
           '#states' => [
             'visible' => [
-                [':input[name="processors[SearchApiGlossaryAZProcessor][settings][glossarytable][' . $name . '][glossary]"]' => ['checked' => TRUE]],
+                [':input[name="processors[Glossary][settings][glossarytable][' . $name . '][glossary]"]' => ['checked' => TRUE]],
             ],
           ],
         ];

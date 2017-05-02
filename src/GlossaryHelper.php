@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\search_api_glossary\SearchApiGlossaryAZHelper.
+ * Contains Drupal\search_api_glossary\GlossaryHelper.
  */
 
 namespace Drupal\search_api_glossary;
@@ -12,7 +12,7 @@ namespace Drupal\search_api_glossary;
  *
  * @package Drupal\search_api_glossary
  */
-class SearchApiGlossaryAZHelper {
+class GlossaryHelper {
 
   /**
    * Getter callback for title_az_glossary property.
