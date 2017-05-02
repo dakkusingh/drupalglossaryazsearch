@@ -29,7 +29,7 @@ class SearchApiGlossaryAZHelper {
     // Is it Alpha?
     if (ctype_alpha($first_letter)) {
       // Do we have Alpha grouping?
-      if (in_array('glossary_az_grouping_az', $glossary_az_grouping, TRUE)) {
+      if (in_array('grouping_az', $glossary_az_grouping, TRUE)) {
         $first_letter = "A-Z";
       }
       return $first_letter;
@@ -38,7 +38,7 @@ class SearchApiGlossaryAZHelper {
     // Is it a number?
     elseif (ctype_digit($first_letter)) {
       // Do we have Numeric grouping?
-      if (in_array('glossary_az_grouping_09', $glossary_az_grouping, TRUE)) {
+      if (in_array('grouping_09', $glossary_az_grouping, TRUE)) {
         $first_letter = "0-9";
       }
       return $first_letter;
@@ -46,7 +46,7 @@ class SearchApiGlossaryAZHelper {
 
     // Catch non alpha numeric.
     // Do we have Non Alpha Numeric grouping?
-    elseif (in_array('glossary_az_grouping_other', $glossary_az_grouping, TRUE)) {
+    elseif (in_array('grouping_other', $glossary_az_grouping, TRUE)) {
       $first_letter = "#";
       return $first_letter;
     }
