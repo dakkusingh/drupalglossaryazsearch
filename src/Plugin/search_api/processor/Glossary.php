@@ -19,7 +19,7 @@ use Drupal\search_api_glossary\GlossaryHelper;
  *
  * @SearchApiProcessor(
  *   id = "glossary",
- *   label = @Translation("Search API glossary processor"),
+ *   label = @Translation("Glossary processor"),
  *   description = @Translation("Exposes glossary computed fields to Search API."),
  *   stages = {
  *     "add_properties" = 0,
@@ -183,7 +183,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
           '#required' => FALSE,
           '#states' => [
             'visible' => [
-                [':input[name="processors[Glossary][settings][glossarytable][' . $name . '][glossary]"]' => ['checked' => TRUE]],
+                [':input[name="processors[glossary][settings][glossarytable][' . $name . '][glossary]"]' => ['checked' => TRUE]],
             ],
           ],
         ];
