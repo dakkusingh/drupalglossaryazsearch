@@ -44,7 +44,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
 
     if (!$datasource) {
       // Get glossary fields.
-      $glossary_fields = $this->configuration['glossarytable'];
+      $glossary_fields = $this->getConfig()['glossarytable'];
 
       // Get original fields from index.
       $fields = $this->index->getFields();
@@ -80,7 +80,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
     $item_fields = $item->getFields();
 
     // Get glossary fields.
-    $glossary_fields_conf = $this->configuration['glossarytable'];
+    $glossary_fields_conf = $this->getConfig()['glossarytable'];
 
     // Loop through all fields.
     foreach ($item_fields as $name => $field) {
@@ -124,6 +124,8 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
       'field_enabled' => 0,
       'grouping_defaults' => [
         'grouping_other' => 'grouping_other',
+        'grouping_az' => NULL,
+        'grouping_09' => NULL,
       ],
     ];
   }
@@ -150,8 +152,9 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
           $this->checkFieldName($name) == FALSE) {
         // Check the config if the field has been enabled?
         $field_enabled = $this->configuration['field_enabled'];
-        $glossary_fields = $this->configuration['glossarytable'];
+        $glossary_fields = $this->getConfig()['glossarytable'];
         $this_glossary_field = $glossary_fields[$name]['glossary'];
+
         if (isset($this_glossary_field) && $this_glossary_field == 1) {
           $field_enabled = $this_glossary_field;
         }
@@ -159,6 +162,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
         // Check the config if the field has been enabled?
         $field_gouping = $this->configuration['grouping_defaults'];
         $this_glossary_group = $glossary_fields[$name]['grouping'];
+
         if (isset($this_glossary_group)) {
           $field_gouping = $this_glossary_group;
         }
@@ -178,7 +182,6 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
             'grouping_09' => 'Group Numeric (0-9)',
             'grouping_other' => 'Group Non Alpha Numeric (#)',
           ],
-          // TODO There is a suspected bug where these dot always get saved
           '#default_value' => $field_gouping,
           '#required' => FALSE,
           '#states' => [
@@ -198,7 +201,8 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->setConfiguration($form_state->getValues('glossarytable'));
+    $glossarytable = $form_state->getValues('glossarytable');
+    $this->setConfig($glossarytable);
   }
 
   /**
@@ -206,7 +210,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    */
   public function preIndexSave() {
     // Get glossary fields.
-    $glossary_fields = $this->configuration['glossarytable'];
+    $glossary_fields = $this->getConfig()['glossarytable'];
 
     // Get original fields from index.
     $fields = $this->index->getFields();
@@ -269,4 +273,19 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
 
     return FALSE;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getConfig() {
+    return unserialize($this->configuration['glossarytable']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setConfig($configuration) {
+    $this->setConfiguration(['glossarytable' => serialize($configuration)]);
+  }
+
 }
