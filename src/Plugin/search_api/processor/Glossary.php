@@ -259,7 +259,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
   /**
    * {@inheritdoc}
    */
-  protected function getFieldName($name) {
+  public function getFieldName($name) {
     return str_replace($this->target_field_prefix, '', $name);
   }
 
@@ -277,7 +277,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
   /**
    * {@inheritdoc}
    */
-  protected function getConfig() {
+  public function getConfig() {
     return unserialize($this->configuration['glossarytable']);
   }
 

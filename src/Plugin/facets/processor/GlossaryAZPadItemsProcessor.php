@@ -25,22 +25,28 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet, array $results) {
-    $glossary_field_id = $facet->getFieldIdentifier();
 
-    // Load up config and loop though settings.
-    $config = \Drupal::config('search_api_glossary.settings');
-    $glossary_field_settings = $config->get($glossary_field_id);
-
-    // Is this a glossary field?
-    if ($glossary_field_settings == NULL) {
+    if (!array_key_exists('glossary', $facet->getFacetSource()->getIndex()->getProcessors())) {
+      // Glossary processor is not enabled, nothing to do.
       return $results;
     }
 
-    $glossary_az_grouping = array_values($glossary_field_settings['glossary_az_grouping']);
+    // All good?
+    // Load up the search index and processor.
+    $glossary_processor = $facet->getFacetSource()->getIndex()->getProcessor('glossary');
+    $glossary_processor_config = $glossary_processor->getConfig();
+    $glossary_processor_config_fields = $glossary_processor_config['glossarytable'];
 
-    $glossary_array = array();
+    // Resolve fields.
+    $glossary_field_id = $facet->getFieldIdentifier();
+    $parent_field_id = $glossary_processor->getFieldName($glossary_field_id);
+
+    // Finally get group values.
+    $glossary_az_grouping = array_values($glossary_processor_config_fields[$parent_field_id]['grouping']);
+
+    $glossary_array = [];
     // If Alpha grouping is not set, pad alpha.
-    if (!in_array('glossary_az_grouping_az', $glossary_az_grouping, TRUE)) {
+    if (!in_array('grouping_az', $glossary_az_grouping, TRUE)) {
       $glossary_array = array_merge($glossary_array, range('A', 'Z'));
     }
     else {
@@ -48,7 +54,7 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
     }
 
     // If Numeric grouping is not set, pad alpha.
-    if (!in_array('glossary_az_grouping_09', $glossary_az_grouping, TRUE)) {
+    if (!in_array('grouping_09', $glossary_az_grouping, TRUE)) {
       $glossary_array = array_merge($glossary_array, array_map('strval', range('0', '9')));
     }
     else {
@@ -56,7 +62,7 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
     }
 
     // Do we have Non Alpha Numeric grouping?
-    if (in_array('glossary_az_grouping_other', $glossary_az_grouping, TRUE)) {
+    if (in_array('grouping_other', $glossary_az_grouping, TRUE)) {
       $glossary_array[] = "#";
     }
 
