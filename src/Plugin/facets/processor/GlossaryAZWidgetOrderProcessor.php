@@ -86,6 +86,7 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
       if ($result->getRawValue() == '0-9' || ctype_digit($result->getRawValue()) || is_int($result->getRawValue())) {
         $glossary_results['glossaryaz_sort_09'][$result->getRawValue()] = $result;
       }
+      // TODO Only add the all option if ALL processor is enabled.
       elseif ($result->getRawValue() == 'All') {
         $glossary_results['glossaryaz_sort_all'][$result->getRawValue()] = $result;
       }
@@ -184,6 +185,7 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
         'weight' => 3,
         'name' => $this->t('Other (#)'),
       ),
+      // TODO Only add the all option if ALL processor is enabled.
       'glossaryaz_sort_all' => array(
         'weight' => -1,
         'name' => $this->t('All'),
