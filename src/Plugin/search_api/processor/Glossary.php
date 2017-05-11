@@ -264,7 +264,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
   /**
    * {@inheritdoc}
    */
-  protected function checkFieldName($name) {
+  public function checkFieldName($name) {
     if (substr($name, 0, strlen($this->targetFieldPrefix)) === $this->targetFieldPrefix) {
       return TRUE;
     }
