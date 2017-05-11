@@ -6,10 +6,8 @@ use Drupal\search_api\Datasource\DatasourceInterface;
 use Drupal\search_api\Item\ItemInterface;
 use Drupal\search_api\Processor\ProcessorPluginBase;
 use Drupal\search_api\Processor\ProcessorProperty;
-use Drupal\search_api\Utility\Utility;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\search_api\IndexInterface;
 use Drupal\search_api\Plugin\PluginFormTrait;
 use Drupal\Component\Utility\Html;
 use Drupal\search_api_glossary\GlossaryHelper;
@@ -34,7 +32,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
 
   use PluginFormTrait;
 
-  protected $target_field_prefix = 'glossaryaz_';
+  protected $targetFieldPrefix = 'glossaryaz_';
 
   /**
    * {@inheritdoc}
@@ -51,8 +49,8 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
 
       // Loop through the saved config from
       // Search API field settings form.
-      foreach($glossary_fields as $name => $glossary_field) {
-        // If glossary is enabled on this field
+      foreach ($glossary_fields as $name => $glossary_field) {
+        // If glossary is enabled on this field.
         if ((isset($glossary_field['glossary']) && $glossary_field['glossary'] == 1) &&
             isset($fields[$name])) {
           $definition = [
@@ -140,7 +138,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
       '#type' => 'table',
       '#header' => [
         $this->t('Field'),
-        $this->t('Glossary Grouping')
+        $this->t('Glossary Grouping'),
       ],
     ];
 
@@ -217,8 +215,8 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
 
     // Loop through the saved config from
     // Search API field settings form.
-    foreach($glossary_fields as $name => $glossary_field) {
-      // If glossary is enabled on this field
+    foreach ($glossary_fields as $name => $glossary_field) {
+      // If glossary is enabled on this field.
       if ((isset($glossary_field['glossary']) && $glossary_field['glossary'] == 1) &&
           isset($fields[$name])) {
         // Automatically add field to index if processor is enabled.
@@ -253,21 +251,21 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    * {@inheritdoc}
    */
   protected function makeFieldName($name) {
-    return $this->target_field_prefix . $name;
+    return $this->targetFieldPrefix . $name;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getFieldName($name) {
-    return str_replace($this->target_field_prefix, '', $name);
+    return str_replace($this->targetFieldPrefix, '', $name);
   }
 
   /**
    * {@inheritdoc}
    */
   protected function checkFieldName($name) {
-    if (substr($name, 0, strlen($this->target_field_prefix)) === $this->target_field_prefix) {
+    if (substr($name, 0, strlen($this->targetFieldPrefix)) === $this->targetFieldPrefix) {
       return TRUE;
     }
 

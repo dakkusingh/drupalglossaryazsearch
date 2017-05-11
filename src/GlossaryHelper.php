@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\search_api_glossary\GlossaryHelper.
- */
-
 namespace Drupal\search_api_glossary;
 
 /**
