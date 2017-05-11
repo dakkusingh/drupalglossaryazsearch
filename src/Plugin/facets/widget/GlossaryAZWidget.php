@@ -8,6 +8,7 @@ use Drupal\facets\FacetInterface;
 use Drupal\facets\Result\ResultInterface;
 use Drupal\facets\Widget\WidgetPluginInterface;
 use Drupal\facets\Widget\WidgetPluginBase;
+use Drupal\search_api_glossary\GlossaryHelper;
 
 /**
  * The GlossaryAZ widget.
@@ -24,9 +25,16 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet) {
+    // Are we dealing with Glossary field?
+    // TODO Figure out a better way to set Widget conditions.
+    // See https://www.drupal.org/node/2877691. 
+    $is_glossary_field = GlossaryHelper::glossaryFacetFieldCheker($facet);
+    if (!$is_glossary_field) {
+      return [];
+    }
+
     /** @var \Drupal\facets\Result\Result[] $results */
     $results = $facet->getResults();
-
     $items = [];
 
     $configuration = $facet->getWidget()['config'];
@@ -128,7 +136,6 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state, FacetInterface $facet) {
-
     $form['show_count'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show count per Glossary item'),
