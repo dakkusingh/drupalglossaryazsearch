@@ -35,6 +35,13 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
   protected $targetFieldPrefix = 'glossaryaz_';
 
   /**
+   * The data type helper.
+   *
+   * @var \Drupal\search_api\Utility\DataTypeHelperInterface|null
+   */
+  protected $dataTypeHelper;  
+
+  /**
    * {@inheritdoc}
    */
   public function getPropertyDefinitions(DatasourceInterface $datasource = NULL) {
