@@ -39,7 +39,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    *
    * @var \Drupal\search_api\Utility\DataTypeHelperInterface|null
    */
-  protected $dataTypeHelper;  
+  protected $dataTypeHelper;
 
   /**
    * {@inheritdoc}
@@ -98,7 +98,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
 
         // Check if source field exists
         // and if glossary is enabled on this field.
-        if (isset($glossary_field_conf) && $glossary_field_conf == 1) {
+        if (isset($glossary_field_conf) && $glossary_field_conf == 1 && !empty($field->getValues())) {
           // Get the Parent field value.
           $source_field_value = $field->getValues()[0];
 
