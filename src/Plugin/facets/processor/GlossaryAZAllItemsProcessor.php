@@ -7,6 +7,7 @@ use Drupal\facets\Processor\BuildProcessorInterface;
 use Drupal\facets\Processor\ProcessorPluginBase;
 use Drupal\facets\Result\Result;
 use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -40,9 +41,8 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
     $path = Request::create($facet->getFacetSource()->getPath());
     $url = Url::createFromRequest($path);
 
-    // First get the current list of get parameters.
-    $request = \Drupal::requestStack()->getMasterRequest();
-    $get_params = $request->query;
+    // First get the current list of get parameters without pager.
+    $get_params = new ParameterBag(pager_get_query_parameters());
 
     // See UrlProcessorPluginBase::__construct.
     $facet_source_config = $facet->getFacetSourceConfig();
