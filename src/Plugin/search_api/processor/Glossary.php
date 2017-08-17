@@ -20,7 +20,7 @@ use Drupal\search_api_glossary\GlossaryHelper;
  *   label = @Translation("Glossary processor"),
  *   description = @Translation("Exposes glossary computed fields to Search API."),
  *   stages = {
- *     "add_properties" = 0,
+ *     "add_properties" = 99,
  *     "pre_index_save" = 0,
  *     "preprocess_index" = -20,
  *   },
