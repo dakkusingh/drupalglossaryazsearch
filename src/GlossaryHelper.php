@@ -14,7 +14,7 @@ class GlossaryHelper {
    */
   public function glossaryGetter($source_value, $glossary_az_grouping) {
     $first_letter = strtoupper(substr(trim($source_value), 0, 1));
-    return self::glossaryGetterHelper($first_letter, array_values($glossary_az_grouping));
+    return $this->glossaryGetterHelper($first_letter, array_values($glossary_az_grouping));
   }
 
   /**

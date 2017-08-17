@@ -27,7 +27,7 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
   public function build(FacetInterface $facet) {
     // Are we dealing with Glossary field?
     // TODO Figure out a better way to set Widget conditions.
-    // See https://www.drupal.org/node/2877691. 
+    // See https://www.drupal.org/node/2877691.
     $is_glossary_field = GlossaryHelper::glossaryFacetFieldCheker($facet);
     if (!$is_glossary_field) {
       return [];
