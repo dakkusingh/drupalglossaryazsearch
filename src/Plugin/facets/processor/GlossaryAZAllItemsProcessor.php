@@ -34,7 +34,7 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
       $show_all_item_count += $result->getCount();
     }
 
-    $show_all_item = new Result(t('All'), t('All'), $show_all_item_count);
+    $show_all_item = new Result(t('All')->getUntranslatedString(), t('All'), $show_all_item_count);
 
     // Deal with the ALL Items path.
     // See QueryString::buildUrls.
