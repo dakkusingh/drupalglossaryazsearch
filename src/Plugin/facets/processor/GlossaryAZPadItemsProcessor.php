@@ -81,7 +81,7 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
 
     // Loop over the missing items and add them.
     foreach ($glossary_missing as $glossary) {
-      $results[] = new Result($glossary, $glossary, 0);
+      $results[] = new Result($facet, $glossary, $glossary, 0);
     }
 
     return $results;
