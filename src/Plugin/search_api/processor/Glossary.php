@@ -63,7 +63,8 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
           $definition = [
             'label' => $this->t('Glossary AZ - ' . Html::escape($fields[$name]->getPrefixedLabel())),
             'description' => $this->t('Glossary AZ - ' . Html::escape($fields[$name]->getPrefixedLabel())),
-            'type' => $fields[$name]->getType(),
+            // ElasticSearch facets will need this field to be string
+            'type' => 'string',
             'processor_id' => $this->getPluginId(),
             // This will be a hidden field,
             // not something a user can add/remove manually.
@@ -229,7 +230,8 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
           isset($fields[$name])) {
         // Automatically add field to index if processor is enabled.
         $new_field_name = $this->makeFieldName($name);
-        $field = $this->ensureField(NULL, $new_field_name, $fields[$name]->getType());
+        // ElasticSearch facets will need this field to be string
+        $field = $this->ensureField(NULL, $new_field_name, 'string');
 
         // Hide the field.
         $field->setHidden();
