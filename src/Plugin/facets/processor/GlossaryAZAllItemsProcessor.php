@@ -26,7 +26,7 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet, array $results) {
-    $show_all_item = new Result('All', 'All', count($results));
+    $show_all_item = new Result(t('All')->getUntranslatedString(), t('All'), count($results));
 
     // Process the results count.
     $show_all_item_count = 0;
