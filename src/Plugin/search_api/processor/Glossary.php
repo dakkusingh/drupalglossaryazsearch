@@ -49,7 +49,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
 
     if (!$datasource) {
       // Get glossary fields.
-      $glossary_fields = $this->getConfig()['glossarytable'];
+      $glossary_fields = $this->getConfig();
 
       // Get original fields from index.
       $fields = $this->index->getFields();
@@ -86,7 +86,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
     $item_fields = $item->getFields();
 
     // Get glossary fields.
-    $glossary_fields_conf = $this->getConfig()['glossarytable'];
+    $glossary_fields_conf = $this->getConfig();
 
     // Loop through all fields.
     foreach ($item_fields as $name => $field) {
@@ -158,7 +158,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
           $this->checkFieldName($name) == FALSE) {
         // Check the config if the field has been enabled?
         $field_enabled = $this->configuration['field_enabled'];
-        $glossary_fields = $this->getConfig()['glossarytable'];
+        $glossary_fields = $this->getConfig();
         $this_glossary_field = $glossary_fields[$name]['glossary'];
 
         if (isset($this_glossary_field) && $this_glossary_field == 1) {
@@ -216,7 +216,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    */
   public function preIndexSave() {
     // Get glossary fields.
-    $glossary_fields = $this->getConfig()['glossarytable'];
+    $glossary_fields = $this->getConfig();
 
     // Get original fields from index.
     $fields = $this->index->getFields();
@@ -284,7 +284,11 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    * {@inheritdoc}
    */
   public function getConfig() {
-    return unserialize($this->configuration['glossarytable']);
+
+    if (isset($this->configuration['glossarytable'])) {
+      return unserialize($this->configuration['glossarytable'])['glossarytable'];
+    }
+
   }
 
   /**
