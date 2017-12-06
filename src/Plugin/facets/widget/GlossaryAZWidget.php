@@ -69,7 +69,7 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
   /**
    * {@inheritdoc}
    */
-  protected function buildListItems($facet, ResultInterface $result) {
+  protected function buildListItems(FacetInterface $facet, ResultInterface $result) {
     $classes = ['facet-item', 'glossaryaz'];
     // Not sure if glossary will have children.
     // Removed chilren processing for now.
