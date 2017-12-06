@@ -34,8 +34,7 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
     // All good?
     // Load up the search index and processor.
     $glossary_processor = $facet->getFacetSource()->getIndex()->getProcessor('glossary');
-    $glossary_processor_config = $glossary_processor->getConfig();
-    $glossary_processor_config_fields = $glossary_processor_config['glossarytable'];
+    $glossary_processor_config_fields = $glossary_processor->getConfig();
 
     // Resolve fields.
     $glossary_field_id = $facet->getFieldIdentifier();
