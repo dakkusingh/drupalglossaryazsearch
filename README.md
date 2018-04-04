@@ -1,13 +1,16 @@
 # Glossary AZ Search
+[![CircleCI](https://circleci.com/gh/dakkusingh/drupalglossaryazsearch.svg?style=svg)](https://circleci.com/gh/dakkusingh/drupalglossaryazsearch)
 
-Provides A-Z Glossary facet for Drupal Searches, using Search API, Facets and supports multiple search backends.
+Provides A-Z Glossary facet for Drupal Searches, using Search API, 
+Facets and supports multiple search backends.
 
 
 ## Features in Drupal 8 Branch
 
 * Add a Glossary AZ index to an Entity type or Bundle
 * Works for nodes, users, comments, basically almost everything
-* Multiple backends supported, you can choose Drupal DB search, Solr Search, ElasticSearch
+* Multiple backends supported, you can choose Drupal DB search, 
+Solr Search, ElasticSearch
 * Works with views, search api, Search Api Page, Facets module
 * Drupal 8 Native Plugin architecture
 * Facets Plugin Architecture

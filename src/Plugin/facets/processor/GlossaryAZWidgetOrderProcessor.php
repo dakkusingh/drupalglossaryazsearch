@@ -72,9 +72,9 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
     // Initialise an empty array and populate
     // it with options in the same order as the sort
     // order defined in the config.
-    $glossary_results = array();
+    $glossary_results = [];
     foreach ($sort_options_by_weight as $sort_option_by_weight_id => $sort_option_by_weight_weight) {
-      $glossary_results[$sort_option_by_weight_id] = array();
+      $glossary_results[$sort_option_by_weight_id] = [];
     }
 
     // Since our new array is already in
@@ -105,7 +105,7 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
     ksort($glossary_results['glossaryaz_sort_other']);
 
     // Flatten the array to same structure as $results.
-    $glossary_results_sorted = array();
+    $glossary_results_sorted = [];
     foreach ($glossary_results as $glossary_result) {
       if ($glossary_result) {
         $glossary_results_sorted = array_merge($glossary_results_sorted, $glossary_result);
@@ -128,24 +128,24 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
     $sort_options_by_weight = $this->sortConfigurationWeight($sort_options);
 
     // Build the form.
-    $build['sort'] = array(
+    $build['sort'] = [
       '#tree' => TRUE,
       '#type' => 'table',
-      '#attributes' => array(
+      '#attributes' => [
         'id' => 'glossaryaz-sort-widget',
-      ),
-      '#header' => array(
+      ],
+      '#header' => [
         $this->t('Sort By'),
         $this->t('Weight'),
-      ),
-      '#tabledrag' => array(
-        array(
+      ],
+      '#tabledrag' => [
+        [
           'action' => 'order',
           'relationship' => 'sibling',
           'group' => 'glossaryaz-sort-weight',
-        ),
-      ),
-    );
+        ],
+      ],
+    ];
 
     foreach ($sort_options_by_weight as $sort_option_key => $sort_option_weight) {
       $build['sort'][$sort_option_key]['#attributes']['class'][] = 'draggable';
@@ -153,16 +153,16 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
       $build['sort'][$sort_option_key]['#weight'] = $sort_option_weight;
       $build['sort'][$sort_option_key]['sort_by']['#plain_text'] = $this->defaultConfiguration()[$sort_option_key]['name'];
 
-      $build['sort'][$sort_option_key]['weight'] = array(
+      $build['sort'][$sort_option_key]['weight'] = [
         '#type' => 'weight',
         '#delta' => count($this->defaultConfiguration()),
         '#default_value' => $sort_option_weight,
-        '#attributes' => array(
-          'class' => array(
+        '#attributes' => [
+          'class' => [
             'glossaryaz-sort-weight',
-          ),
-        ),
-      );
+          ],
+        ],
+      ];
     }
 
     return $build;
@@ -172,25 +172,25 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    $sort_options_deafult = array(
-      'glossaryaz_sort_az' => array(
+    $sort_options_deafult = [
+      'glossaryaz_sort_az' => [
         'weight' => 1,
         'name' => $this->t('Alpha (A-Z)'),
-      ),
-      'glossaryaz_sort_09' => array(
+      ],
+      'glossaryaz_sort_09' => [
         'weight' => 2,
         'name' => $this->t('Numeric (0-9)'),
-      ),
-      'glossaryaz_sort_other' => array(
+      ],
+      'glossaryaz_sort_other' => [
         'weight' => 3,
         'name' => $this->t('Other (#)'),
-      ),
+      ],
       // TODO Only add the all option if ALL processor is enabled.
-      'glossaryaz_sort_all' => array(
+      'glossaryaz_sort_all' => [
         'weight' => -1,
         'name' => $this->t('All'),
-      ),
-    );
+      ],
+    ];
 
     return $sort_options_deafult;
   }

@@ -4,4 +4,4 @@ core: 8.x
 package: Search
 type: module
 dependencies:
-  - search_api
+  - search_api:search_api

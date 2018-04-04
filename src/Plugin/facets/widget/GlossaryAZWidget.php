@@ -56,11 +56,11 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
     ];
 
     if ($enable_default_theme) {
-      $build['#attached'] = array(
-        'library' => array(
+      $build['#attached'] = [
+        'library' => [
           'search_api_glossary/drupal.search_api_glossary.facet_css',
-        ),
-      );
+        ],
+      ];
     }
 
     return $build;

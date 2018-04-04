@@ -33,7 +33,7 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
     foreach ($results as $result) {
       $show_all_item_count += $result->getCount();
     }
-    
+
     $show_all_item = new Result($facet, t('All')->getUntranslatedString(), t('All'), $show_all_item_count);
 
     // Deal with the ALL Items path.
