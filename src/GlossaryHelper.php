@@ -13,6 +13,7 @@ class GlossaryHelper {
    * Getter callback for title_az_glossary property.
    */
   public function glossaryGetter($source_value, $glossary_az_grouping) {
+    \Drupal::moduleHandler()->alter('search_api_glossary_source', $source_value);
     $first_letter = strtoupper(substr(trim($source_value), 0, 1));
     return $this->glossaryGetterHelper($first_letter, array_values($glossary_az_grouping));
   }
