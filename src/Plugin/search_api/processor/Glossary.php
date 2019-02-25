@@ -96,7 +96,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
       // and fields that do not match
       // our required criteria.
       // Finally check if this field has glossary enabled.
-      if ($field->isHidden() == FALSE && $this->testType($field->getType()) && $this->checkFieldName($name) == FALSE) {
+      if ($field->isHidden() == FALSE && $this->testType($field->getType()) && $this->checkFieldName($name) == FALSE && isset($glossary_fields_conf[$name])) {
         $glossary_field_conf = $glossary_fields_conf[$name]['glossary'];
 
         // Check if source field exists
