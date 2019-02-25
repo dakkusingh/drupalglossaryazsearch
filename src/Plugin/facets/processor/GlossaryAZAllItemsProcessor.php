@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Provides a processor to rewrite facet results to pad out missing alpha.
+ * Provides a processor to show All items in Glossary AZ.
  *
  * @FacetsProcessor(
  *   id = "glossaryaz_all_items_processor",
