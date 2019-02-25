@@ -108,7 +108,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
           // Get target field name.
           $glossary_field_name = $this->makeFieldName($name);
 
-          // Glossary value.
+          // Calculated Glossary value.
           $glossary_value = $glossary_helper->glossaryGetter($source_field_value, $glossary_fields_conf[$name]['grouping']);
 
           // Get target field.
@@ -156,7 +156,8 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
       // Filter out hidden fields
       // and fields that do not match
       // our required criteria.
-      if ($field->isHidden() == FALSE && $this->testType($field->getType()) &&
+      if ($field->isHidden() == FALSE &&
+          $this->testType($field->getType()) &&
           $this->checkFieldName($name) == FALSE) {
         // Check the config if the field has been enabled?
         $glossary_fields = $this->getConfig();
@@ -281,7 +282,6 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
     if (isset($this->configuration['glossarytable'])) {
       return unserialize($this->configuration['glossarytable'])['glossarytable'];
     }
-
   }
 
   /**
