@@ -132,8 +132,8 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
       'field_enabled' => 0,
       'grouping_defaults' => [
         'grouping_other' => 'grouping_other',
-        'grouping_az' => NULL,
-        'grouping_09' => NULL,
+        'grouping_az' => 0,
+        'grouping_09' => 0,
       ],
     ];
   }
@@ -159,21 +159,11 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
       if ($field->isHidden() == FALSE && $this->testType($field->getType()) &&
           $this->checkFieldName($name) == FALSE) {
         // Check the config if the field has been enabled?
-        $field_enabled = $this->configuration['field_enabled'];
         $glossary_fields = $this->getConfig();
-        $this_glossary_field = $glossary_fields[$name]['glossary'];
-
-        if (isset($this_glossary_field) && $this_glossary_field == 1) {
-          $field_enabled = $this_glossary_field;
-        }
+        $field_enabled = isset($glossary_fields[$name]['glossary']) ? $glossary_fields[$name]['glossary'] : $this->configuration['field_enabled'];
 
         // Check the config if the field has been enabled?
-        $field_gouping = $this->configuration['grouping_defaults'];
-        $this_glossary_group = $glossary_fields[$name]['grouping'];
-
-        if (isset($this_glossary_group)) {
-          $field_gouping = $this_glossary_group;
-        }
+        $field_grouping = isset($glossary_fields[$name]['grouping']) ? $glossary_fields[$name]['grouping'] : $this->configuration['grouping_defaults'];
 
         $form['glossarytable'][$name]['glossary'] = [
           '#type' => 'checkbox',
@@ -190,7 +180,7 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
             'grouping_09' => 'Group Numeric (0-9)',
             'grouping_other' => 'Group Non Alpha Numeric (#)',
           ],
-          '#default_value' => $field_gouping,
+          '#default_value' => $field_grouping,
           '#required' => FALSE,
           '#states' => [
             'visible' => [
