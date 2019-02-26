@@ -250,14 +250,26 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Return the glossary name of source field.
+   *
+   * @param string $name
+   *   Name of the original field.
+   *
+   * @return string
+   *   Name of the glossary field.
    */
   protected function makeFieldName($name) {
     return $this->targetFieldPrefix . $name;
   }
 
   /**
-   * {@inheritdoc}
+   * Return the name of source field.
+   *
+   * @param string $name
+   *   Name of the glossary field.
+   *
+   * @return string
+   *   Name of the original field.
    */
   public function getFieldName($name) {
     return str_replace($this->targetFieldPrefix, '', $name);
@@ -285,7 +297,10 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Wrapper to get config.
+   *
+   * @return array
+   *   Configuration array.
    */
   public function getConfig() {
     if (isset($this->configuration['glossarytable'])) {
@@ -294,9 +309,12 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Wrapper to save config.
+   *
+   * @param array $configuration
+   *   Configuration array.
    */
-  protected function setConfig($configuration) {
+  protected function setConfig(array $configuration) {
     $this->setConfiguration(['glossarytable' => serialize($configuration)]);
   }
 
