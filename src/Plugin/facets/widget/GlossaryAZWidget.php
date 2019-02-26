@@ -8,7 +8,6 @@ use Drupal\facets\FacetInterface;
 use Drupal\facets\Result\ResultInterface;
 use Drupal\facets\Widget\WidgetPluginInterface;
 use Drupal\facets\Widget\WidgetPluginBase;
-use Drupal\search_api_glossary\GlossaryHelper;
 
 /**
  * The GlossaryAZ widget.
@@ -25,20 +24,9 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet) {
-    // Are we dealing with Glossary field?
-    // TODO Figure out a better way to set Widget conditions.
-    // See https://www.drupal.org/node/2877691.
-    $is_glossary_field = GlossaryHelper::glossaryFacetFieldCheker($facet);
-    if (!$is_glossary_field) {
-      return [];
-    }
-
     /** @var \Drupal\facets\Result\Result[] $results */
     $results = $facet->getResults();
     $items = [];
-
-    $configuration = $facet->getWidget()['config'];
-    $enable_default_theme = empty($configuration['enable_default_theme']) ? FALSE : (bool) $configuration['enable_default_theme'];
 
     foreach ($results as $result) {
       $items[] = $this->buildListItems($facet, $result);
@@ -54,6 +42,9 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
         ],
       ],
     ];
+
+    $configuration = $facet->getWidget()['config'];
+    $enable_default_theme = empty($configuration['enable_default_theme']) ? FALSE : (bool) $configuration['enable_default_theme'];
 
     if ($enable_default_theme) {
       $build['#attached'] = [
@@ -72,7 +63,7 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
   protected function buildListItems(FacetInterface $facet, ResultInterface $result) {
     $classes = ['facet-item', 'glossaryaz'];
     // Not sure if glossary will have children.
-    // Removed chilren processing for now.
+    // Removed children processing for now.
     $items = $this->prepareLink($result);
 
     if ($result->isActive()) {
@@ -157,6 +148,25 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
    */
   public function getQueryType() {
     return 'string';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function supportsFacet(FacetInterface $facet) {
+    // Are we dealing with Glossary field?
+    // See https://www.drupal.org/node/2877691.
+    // Load up the search index and processor.
+    $glossary_processor = $facet->getFacetSource()->getIndex()->getProcessor('glossary');
+
+    // Name of the field to check against.
+    $glossary_field_id = $facet->getFieldIdentifier();
+
+    // Check if chosen field is glossary or not.
+    // checkFieldName will return TRUE or FALSE
+    // see Glossary::checkFieldName()
+    $is_glossary_field = $glossary_processor->checkFieldName($glossary_field_id);
+    return $is_glossary_field;
   }
 
 }

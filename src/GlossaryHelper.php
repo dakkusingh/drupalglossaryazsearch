@@ -60,18 +60,4 @@ class GlossaryHelper {
     return $first_letter;
   }
 
-  /**
-   * Facet Helper for to check glossary field.
-   */
-  public static function glossaryFacetFieldCheker($facet) {
-    // Load up the search index and processor.
-    $glossary_processor = $facet->getFacetSource()->getIndex()->getProcessor('glossary');
-
-    // Resolve fields.
-    $glossary_field_id = $facet->getFieldIdentifier();
-
-    // Check if chosen field is glossary or not.
-    return $glossary_processor->checkFieldName($glossary_field_id);
-  }
-
 }
