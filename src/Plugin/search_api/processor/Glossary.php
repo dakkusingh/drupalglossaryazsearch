@@ -283,10 +283,10 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    * glossary field or not.
    *
    * @param string $name
-   * Name of the field to check
+   *   Name of the field to check.
    *
    * @return bool
-   * Is the supplied field glossary or not?
+   *   Is the supplied field glossary or not?
    */
   public function checkFieldName($name) {
     if (substr($name, 0, strlen($this->targetFieldPrefix)) === $this->targetFieldPrefix) {
