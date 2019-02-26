@@ -264,7 +264,17 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Check for Glossary field.
+   *
+   * Check if the supplied name matches the prefix
+   * This is used to determine if a given field is a
+   * glossary field or not.
+   *
+   * @param string $name
+   * Name of the field to check
+   *
+   * @return bool
+   * Is the supplied field glossary or not?
    */
   public function checkFieldName($name) {
     if (substr($name, 0, strlen($this->targetFieldPrefix)) === $this->targetFieldPrefix) {
@@ -278,7 +288,6 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    * {@inheritdoc}
    */
   public function getConfig() {
-
     if (isset($this->configuration['glossarytable'])) {
       return unserialize($this->configuration['glossarytable'])['glossarytable'];
     }
