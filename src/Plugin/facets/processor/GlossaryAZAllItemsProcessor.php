@@ -73,4 +73,18 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
     return $results;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function supportsFacet(FacetInterface $facet) {
+    $widget = $facet->getWidget()['type'];
+
+    if ($widget == 'glossaryaz') {
+      // Glossary processor is enabled.
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
 }

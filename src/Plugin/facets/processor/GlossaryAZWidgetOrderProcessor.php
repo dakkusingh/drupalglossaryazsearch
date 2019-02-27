@@ -208,4 +208,18 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
     return $sort_options_by_weight;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function supportsFacet(FacetInterface $facet) {
+    $widget = $facet->getWidget()['type'];
+
+    if ($widget == 'glossaryaz') {
+      // Glossary processor is enabled.
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
 }
