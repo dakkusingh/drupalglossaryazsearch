@@ -212,9 +212,13 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
    * {@inheritdoc}
    */
   public function supportsFacet(FacetInterface $facet) {
+    // Check if
+    // 1) The correct widget is chosen for the facet
+    // 2) If the glossary processor is enabled in Search API index.
     $widget = $facet->getWidget()['type'];
+    $search_processors = $facet->getFacetSource()->getIndex()->getProcessors();
 
-    if ($widget == 'glossaryaz') {
+    if ($widget == 'glossaryaz' && array_key_exists('glossary', $search_processors)) {
       // Glossary processor is enabled.
       return TRUE;
     }

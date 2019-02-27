@@ -25,12 +25,6 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
    * {@inheritdoc}
    */
   public function build(FacetInterface $facet, array $results) {
-
-    if (!array_key_exists('glossary', $facet->getFacetSource()->getIndex()->getProcessors())) {
-      // Glossary processor is not enabled, nothing to do.
-      return $results;
-    }
-
     // All good?
     // Load up the search index and processor.
     $glossary_processor = $facet->getFacetSource()->getIndex()->getProcessor('glossary');
@@ -90,9 +84,13 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
    * {@inheritdoc}
    */
   public function supportsFacet(FacetInterface $facet) {
+    // Check if
+    // 1) The correct widget is chosen for the facet
+    // 2) If the glossary processor is enabled in Search API index.
     $widget = $facet->getWidget()['type'];
+    $search_processors = $facet->getFacetSource()->getIndex()->getProcessors();
 
-    if ($widget == 'glossaryaz') {
+    if ($widget == 'glossaryaz' && array_key_exists('glossary', $search_processors)) {
       // Glossary processor is enabled.
       return TRUE;
     }
