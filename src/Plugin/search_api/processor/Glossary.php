@@ -10,7 +10,6 @@ use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\search_api\Plugin\PluginFormTrait;
 use Drupal\Component\Utility\Html;
-use Drupal\search_api_glossary\GlossaryHelper;
 
 /**
  * Adds the item's AZ to the indexed data.
@@ -84,7 +83,9 @@ class Glossary extends ProcessorPluginBase implements PluginFormInterface {
    * {@inheritdoc}
    */
   public function addFieldValues(ItemInterface $item) {
-    $glossary_helper = new GlossaryHelper();
+    // TODO Dependency Inject.
+    $glossary_helper = \Drupal::service('search_api_glossary.helper');
+
     $item_fields = $item->getFields();
 
     // Get glossary fields.
