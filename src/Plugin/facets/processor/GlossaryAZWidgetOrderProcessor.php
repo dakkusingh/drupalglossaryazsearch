@@ -73,6 +73,7 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
     // it with options in the same order as the sort
     // order defined in the config.
     $glossary_results = [];
+
     foreach ($sort_options_by_weight as $sort_option_by_weight_id => $sort_option_by_weight_weight) {
       $glossary_results[$sort_option_by_weight_id] = [];
     }
@@ -126,6 +127,12 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
     // Get the weight options.
     $sort_options = !is_null($config) ? $config->getConfiguration()['sort'] : $this->defaultConfiguration();
     $sort_options_by_weight = $this->sortConfigurationWeight($sort_options);
+
+    // TODO Only add the all option if ALL processor is enabled.
+    // Resolve the issue when the ALL processor is enabled AFTER the
+    // Sort options have been saved. In such case, the all option will not be
+    // presented despite the processor being enabled because its not in the
+    // $config array.
 
     // Build the form.
     $build['sort'] = [
