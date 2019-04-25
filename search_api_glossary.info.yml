@@ -5,3 +5,4 @@ package: Search
 type: module
 dependencies:
   - search_api:search_api
+  - facets:facets
