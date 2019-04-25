@@ -38,25 +38,33 @@ class GlossaryAZPadItemsProcessor extends ProcessorPluginBase implements BuildPr
     $glossary_az_grouping = array_values($glossary_processor_config_fields[$parent_field_id]['grouping']);
 
     $glossary_array = [];
+
+    // TODO Dependency Inject.
+    $glossary_helper = \Drupal::service('search_api_glossary.helper');
+    $group_prefix = $glossary_helper->glossaryGetGroupNamePrefix();
+
     // If Alpha grouping is not set, pad alpha.
     if (!in_array('grouping_az', $glossary_az_grouping, TRUE)) {
+      // TODO Figure out how to get AZ equivalent in native language.
       $glossary_array = array_merge($glossary_array, range('A', 'Z'));
     }
     else {
-      $glossary_array[] = "A-Z";
+      $glossary_array[] = $group_prefix['alpha'];
     }
 
     // If Numeric grouping is not set, pad alpha.
     if (!in_array('grouping_09', $glossary_az_grouping, TRUE)) {
+      // TODO Figure out how to get 09 equivalent in native language.
       $glossary_array = array_merge($glossary_array, array_map('strval', range('0', '9')));
     }
     else {
-      $glossary_array[] = "0-9";
+      $glossary_array[] = $group_prefix['numeric'];
     }
 
     // Do we have Non Alpha Numeric grouping?
     if (in_array('grouping_other', $glossary_az_grouping, TRUE)) {
-      $glossary_array[] = "#";
+      // To get # equivalent in native language, change the settings YAML.
+      $glossary_array[] = $group_prefix['special'];
     }
 
     // Generate keys from values.
