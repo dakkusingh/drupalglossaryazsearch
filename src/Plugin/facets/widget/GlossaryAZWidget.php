@@ -102,7 +102,11 @@ class GlossaryAZWidget extends WidgetPluginBase implements WidgetPluginInterface
 
     $text = $result->getDisplayValue();
 
-    if ($show_count) {
+    // TODO revise this logic based on progress with
+    // All items count is not correct when narrowing the results.
+    // https://www.drupal.org/project/facets/issues/2692027
+    // see https://git.drupalcode.org/project/facets/commit/21343a6
+    if ($show_count && $result->getRawValue() != 'All') {
       $text .= ' (' . $result->getCount() . ')';
     }
 
