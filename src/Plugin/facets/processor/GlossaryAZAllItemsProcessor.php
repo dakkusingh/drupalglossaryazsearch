@@ -31,7 +31,9 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
     // Process the results count.
     $show_all_item_count = 0;
     // TODO revise this logic based on progress with
+    // All items count is not correct when narrowing the results.
     // https://www.drupal.org/project/facets/issues/2692027
+    // see https://git.drupalcode.org/project/facets/commit/21343a6
     foreach ($results as $result) {
       $show_all_item_count += $result->getCount();
     }
