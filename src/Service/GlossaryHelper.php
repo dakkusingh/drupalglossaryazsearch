@@ -78,7 +78,7 @@ class GlossaryHelper {
    *   Processed First Letter if using groups.
    */
   public function glossaryGroupName($first_letter, array $glossary_az_grouping) {
-    $group_prefix = $this->config->get('group_prefix');
+    $group_prefix = $this->glossaryGetGroupNamePrefix();
 
     // Do we have Alpha grouping?
     if (in_array('grouping_az', $glossary_az_grouping, TRUE) && $this->isAlpha($first_letter) == TRUE) {
@@ -154,6 +154,10 @@ class GlossaryHelper {
       return TRUE;
     }
     return FALSE;
+  }
+
+  public function glossaryGetGroupNamePrefix() {
+    return $this->config->get('group_prefix');
   }
 
 }
