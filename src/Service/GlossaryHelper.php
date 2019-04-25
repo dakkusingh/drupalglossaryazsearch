@@ -3,6 +3,7 @@
 namespace Drupal\search_api_glossary\Service;
 
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Search Api Glossary AZ Helper class.
@@ -19,13 +20,24 @@ class GlossaryHelper {
   private $config;
 
   /**
+   * Module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  private $moduleHandler;
+
+  /**
    * GlossaryHelper Constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactory $config
    *   An instance of ConfigFactory.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   Module handler service.
    */
-  public function __construct(ConfigFactory $config) {
+  public function __construct(ConfigFactory $config,
+                              ModuleHandlerInterface $module_handler) {
     $this->config = $config->get('search_api_glossary.settings');
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -46,8 +58,7 @@ class GlossaryHelper {
     $first_letter = mb_strtoupper(mb_substr(trim($source_value), 0, 1));
 
     // Allow other modules to hook in and alter the first letter.
-    // TODO Replace with Event Subscriber.
-    \Drupal::moduleHandler()->alter('search_api_glossary_source', $first_letter);
+    $this->moduleHandler->alter('search_api_glossary_source', $first_letter);
 
     // Finally check groupings and alter the first letter.
     return $this->glossaryGroupName($first_letter, array_values($glossary_az_grouping));
