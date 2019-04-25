@@ -133,7 +133,6 @@ class GlossaryAZWidgetOrderProcessor extends SortProcessorPluginBase implements 
     // Sort options have been saved. In such case, the all option will not be
     // presented despite the processor being enabled because its not in the
     // $config array.
-
     // Build the form.
     $build['sort'] = [
       '#tree' => TRUE,

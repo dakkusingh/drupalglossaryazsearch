@@ -156,6 +156,12 @@ class GlossaryHelper {
     return FALSE;
   }
 
+  /**
+   * Getter for Group Name prefixes.
+   *
+   * @return array
+   *   Configuration Array.
+   */
   public function glossaryGetGroupNamePrefix() {
     return $this->config->get('group_prefix');
   }
