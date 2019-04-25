@@ -249,8 +249,7 @@ function hook_search_api_glossary_source_alter(&$source_value) {
     'ż' => 'z',
   ];
 
-  $text = $source_value->getText();
-  $source_value->setText(strtr($text, $replacements));
+  $source_value = (strtr($source_value, $replacements));
 }
 
 /**

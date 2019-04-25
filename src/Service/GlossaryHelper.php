@@ -100,7 +100,6 @@ class GlossaryHelper {
     }
 
     // TODO Maybe allow a final alter as the easy way to change groups?
-    // TODO Replace with Event Subscriber.
     return $first_letter;
   }
 
