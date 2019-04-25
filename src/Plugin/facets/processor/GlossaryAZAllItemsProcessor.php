@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @FacetsProcessor(
  *   id = "glossaryaz_all_items_processor",
  *   label = @Translation("All items in Glossary AZ"),
- *   description = @Translation("Option to show All items in Glossary AZ. Make sure URL handler runs after this processor (see: Advanced settings > Build Stage)"),
+ *   description = @Translation("Option to show All items in Glossary AZ. Make sure URL Handler runs BEFORE this processor (see: Advanced settings > Build Stage)"),
  *   stages = {
  *     "build" = 10
  *   }
@@ -30,6 +30,8 @@ class GlossaryAZAllItemsProcessor extends ProcessorPluginBase implements BuildPr
   public function build(FacetInterface $facet, array $results) {
     // Process the results count.
     $show_all_item_count = 0;
+    // TODO revise this logic based on progress with
+    // https://www.drupal.org/project/facets/issues/2692027
     foreach ($results as $result) {
       $show_all_item_count += $result->getCount();
     }
